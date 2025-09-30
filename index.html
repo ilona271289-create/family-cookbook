@@ -764,16 +764,54 @@
 
     async function callOpenAIChat(messages){
       const key=getObfKey(); if(!key){ ensureKey(); throw new Error('Нет ключа'); }
-      const resp=await fetch('https://api.openai.com/v1/chat/completions',{ method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'}, body:JSON.stringify({model:'gpt-4o-mini',messages,temperature:0.2}) });
-      if(!resp.ok){ if(resp.status===401){ clearObfKey(); ensureKey(); } throw new Error('OpenAI error '+resp.status); }
+      
+      // Используем прокси для обхода CORS на мобильных
+      const proxyUrl = 'https://corsproxy.io/?';
+      const apiUrl = 'https://api.openai.com/v1/chat/completions';
+      
+      const resp=await fetch(proxyUrl + encodeURIComponent(apiUrl),{ 
+        method:'POST', 
+        headers:{
+          'Authorization':`Bearer ${key}`,
+          'Content-Type':'application/json'
+        }, 
+        body:JSON.stringify({model:'gpt-3.5-turbo',messages,temperature:0.2}) 
+      });
+      
+      if(!resp.ok){ 
+        const errorData = await resp.json().catch(() => ({}));
+        console.error('OpenAI API Error:', resp.status, errorData);
+        if(resp.status===401){ clearObfKey(); ensureKey(); } 
+        throw new Error(`OpenAI error ${resp.status}: ${errorData.error?.message || 'Unknown error'}`); 
+      }
       return await resp.json();
     }
 
     async function transcribeAudio(file){
       const key=getObfKey(); if(!key){ ensureKey(); throw new Error('Нет ключа'); }
-      const fd=new FormData(); fd.append('file',file); fd.append('model','whisper-1');
-      const resp=await fetch('https://api.openai.com/v1/audio/transcriptions',{ method:'POST', headers:{'Authorization':`Bearer ${key}`}, body:fd });
-      if(!resp.ok){ if(resp.status===401){ clearObfKey(); ensureKey(); } throw new Error('OpenAI error '+resp.status); }
+      
+      const fd=new FormData(); 
+      fd.append('file',file); 
+      fd.append('model','whisper-1');
+      
+      // Используем прокси для обхода CORS на мобильных
+      const proxyUrl = 'https://corsproxy.io/?';
+      const apiUrl = 'https://api.openai.com/v1/audio/transcriptions';
+      
+      const resp=await fetch(proxyUrl + encodeURIComponent(apiUrl),{ 
+        method:'POST', 
+        headers:{
+          'Authorization':`Bearer ${key}`
+        }, 
+        body:fd 
+      });
+      
+      if(!resp.ok){ 
+        const errorData = await resp.json().catch(() => ({}));
+        console.error('Whisper API Error:', resp.status, errorData);
+        if(resp.status===401){ clearObfKey(); ensureKey(); } 
+        throw new Error(`Whisper error ${resp.status}: ${errorData.error?.message || 'Unknown error'}`); 
+      }
       return await resp.json();
     }
 
@@ -862,15 +900,42 @@
       if(!isRecording){
         try{
           const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-          chunks=[]; mediaRecorder=new MediaRecorder(stream);
+          chunks=[]; 
+          
+          // Определяем поддерживаемый MIME тип для разных браузеров
+          let mimeType = 'audio/webm';
+          if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+            mimeType = 'audio/webm;codecs=opus';
+          } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+            mimeType = 'audio/mp4';
+          } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+            mimeType = 'audio/ogg;codecs=opus';
+          } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+            mimeType = 'audio/wav';
+          }
+          
+          mediaRecorder=new MediaRecorder(stream, { mimeType });
+          console.log('Recording with MIME type:', mimeType);
+          
           mediaRecorder.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
           mediaRecorder.onstop=async()=>{
-            const blob=new Blob(chunks,{type:'audio/webm'});
-            const file=new File([blob],'voice.webm',{type:'audio/webm'});
+            stream.getTracks().forEach(track => track.stop()); // Останавливаем микрофон
+            
+            const blob=new Blob(chunks,{type:mimeType});
+            console.log('Audio blob size:', blob.size, 'type:', blob.type);
+            
+            // Определяем расширение файла по MIME типу
+            let extension = 'webm';
+            if (mimeType.includes('mp4')) extension = 'mp4';
+            else if (mimeType.includes('ogg')) extension = 'ogg';
+            else if (mimeType.includes('wav')) extension = 'wav';
+            
+            const file=new File([blob],`voice.${extension}`,{type:mimeType});
             addMsg('user','[Голосовое: распознаю…]');
             try{ 
               const tr=await transcribeAudio(file); 
               const text=tr.text||''; 
+              console.log('Transcribed text:', text);
               if(text){ 
                 addMsg('user',text); 
                 messages.push({role:'user',content:text}); 
@@ -878,8 +943,13 @@
                 const a=data.choices?.[0]?.message?.content||''; 
                 messages.push({role:'assistant',content:a}); 
                 addMsg('assistant',a);
-              } 
-            }catch(e){ addMsg('assistant','[Не удалось распознать аудио]'); }
+              } else {
+                addMsg('assistant','[Пустой результат распознавания]');
+              }
+            }catch(e){ 
+              console.error('Transcription error:', e);
+              addMsg('assistant','[Ошибка распознавания: '+e.message+']'); 
+            }
           };
           mediaRecorder.start(); 
           isRecording=true; 
@@ -887,7 +957,10 @@
           btn.style.background='#dc2626'; 
           btn.style.color='#fff'; 
           btn.title='Остановить запись';
-        }catch(e){ alert('Нет доступа к микрофону'); }
+        }catch(e){ 
+          console.error('Microphone access error:', e);
+          alert('Нет доступа к микрофону: ' + e.message); 
+        }
       } else {
         mediaRecorder?.stop(); 
         isRecording=false; 
