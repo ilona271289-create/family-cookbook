@@ -241,36 +241,7 @@
           "Язык: русский.",
           "Тон: дружелюбный и энергичный; иногда можно вставить лёгкий юмор, эмодзи типа 😋🔥✨ уместно. Избегай токсичного, грубого или снисходительного тона.",
           "Краткость: цель — 6–10 коротких предложений + списки. Без лишней воды."
-        ].join(" ")
-      }
-    ];
-    function addMsg(role,text){
-      const box=document.getElementById('chat-box');
-      const wrap=document.createElement('div');wrap.className='msg '+(role==='user'?'me':'ai');
-      const b=document.createElement('div');b.className='b';b.innerText=text;wrap.append(b);box.append(wrap);box.scrollTop=box.scrollHeight;
-    }
-    document.getElementById('btn-send').onclick=async()=>{
-      const t=document.getElementById('chat-input').value.trim(); if(!t) return;
-      document.getElementById('chat-input').value=''; addMsg('user',t); messages.push({role:'user',content:t});
-      const data=await callOpenAIChat(messages); const a=data.choices?.[0]?.message?.content||''; messages.push({role:'assistant',content:a}); addMsg('assistant',a);
-    };
-    document.getElementById('btn-build').onclick=async()=>{
-      const raw=document.getElementById('raw').value.trim();
-      const ask = [
-      "Собери итоговый рецепт по идее и нашей переписке.",
-      "Верни ТОЛЬКО валидный JSON (без пояснений) со структурой:",
-      "{",
-      '  "title": "",',
-      '  "category": "",',
-      '  "servings": 0,',
-      '  "time": "",             // например: "35 мин"',
-      '  "ingredients": ["", ""],// в метрической системе, понятные продукты',
-      '  "steps": ["", ""],      // короткие, пронумерованные действия без воды',
-      '  "notes": "",            // лайфхаки/вариации',
-      '  "tags": ["", ""]',
-      "}",
-      `Идея: ${raw}`
-    ].join("
+        ].join("
 ");
     messages.push({role:'user',content:ask}); addMsg('user','Сформируй итоговый рецепт…');
       const data=await callOpenAIChat(messages); const txt=data.choices?.[0]?.message?.content||''; addMsg('assistant',txt);
@@ -289,7 +260,7 @@
       const v=document.getElementById('raw').value.trim(); if(!v) return alert('Введите текст рецепта или идеи');
       document.getElementById('chat-input').value = 'Разметь и приведи к структуре этот текст:
 
-'+v;
+' + v;
       document.getElementById('btn-send').click();
     };
     document.getElementById('btn-clear').onclick=()=>{ document.getElementById('raw').value=''; };
@@ -322,11 +293,6 @@
       } else {
         mediaRecorder?.stop(); isRecording=false; const btn=document.getElementById('btn-mic'); btn.textContent='🎤'; btn.style.background=''; btn.style.color=''; btn.title='Надиктовать';
       }
-    }; };
-
-    // Аудио → чат через Whisper
-          const tr=await transcribeAudio(f); const text=(tr.text)||''; if(text){ addMsg('user',text); messages.push({role:'user',content:text}); const data=await callOpenAIChat(messages); const a=data.choices?.[0]?.message?.content||''; messages.push({role:'assistant',content:a}); addMsg('assistant',a); }
-      e.target.value='';
     };
     // Аудио в верхней секции — просто подтягиваем в поле raw
     document.getElementById('file-audio').onchange = async (e)=>{
