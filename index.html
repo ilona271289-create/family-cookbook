@@ -3,85 +3,491 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Семейная книга рецептов</title>
+  <title>Кулинарная книга El Pablo</title>
   <style>
     :root{
-      --bg:#f7f7fb;--surface:#ffffff;--ink:#222;--muted:#666;--brand:#635bff;--brand-2:#7a73ff;--accent:#ff7a59;
-      --radius:14px;--shadow:0 10px 30px rgba(0,0,0,.08);
+      --bg:#f0fdfa;
+      --surface:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --brand:#14b8a6;
+      --brand-light:#2dd4bf;
+      --brand-dark:#0d9488;
+      --accent:#f59e0b;
+      --border:#e2e8f0;
+      --shadow:0 2px 8px rgba(20,184,166,.08);
+      --shadow-lg:0 8px 24px rgba(20,184,166,.15);
     }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
-    header{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#fff;padding:22px 18px;position:sticky;top:0;z-index:2}
-    h1{margin:0;font-size:22px}
-    main{max-width:980px;margin:22px auto;padding:0 14px}
-    .panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin:16px 0}
-    h2{margin:0 0 10px 0;font-size:18px}
-    textarea,input[type="text"],select{width:100%;border:1px solid #e6e6ef;border-radius:12px;padding:12px 14px;font:inherit;outline:none}
-    textarea{min-height:90px}
-    .btn{border:0;border-radius:12px;padding:10px 14px;font:inherit;cursor:pointer}
-    .btn-brand{background:var(--brand);color:#fff}
-    .btn-ghost{background:#f1f1fb;color:#2b2b34}
-    .grid{display:grid;gap:12px}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .right{margin-left:auto}
-    /* чат */
-    #chat-box{border:1px solid #e6e6ef;border-radius:12px;padding:10px;min-height:160px;background:#fafafe;max-height:360px;overflow:auto}
-    .msg{display:flex;margin:8px 0}
-    .msg .b{padding:10px 12px;border-radius:14px;max-width:80%;white-space:pre-wrap;line-height:1.42}
-    .me .b{background:#e9e7ff;color:#1f1c5e;margin-left:auto}
-    .ai .b{background:#eaf7ef;color:#14361f}
-    .toolbar{display:flex;gap:8px;margin-top:8px;align-items:center}
-    /* карточки */
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-    .card{background:var(--surface);border:1px solid #eee;border-radius:14px;box-shadow:var(--shadow);padding:14px}
-    .title-row{display:flex;gap:8px;align-items:center}
-    .star{cursor:pointer;font-size:18px}
-    .star.active{color:#ffbf00}
-    .small{color:var(--muted);font-size:12px}
-    .actions{display:flex;gap:8px;margin-top:8px}
-    .danger{background:#ffe9e7;color:#a02214}
-    .ok{background:#e6fff0;color:#0a5c2b}
-    /* модалка ключа */
-    #key-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:9999}
-    .modal{background:#fff;padding:18px;border-radius:14px;box-shadow:var(--shadow);width:min(520px,94vw)}
-    .right-float{position:fixed;right:14px;bottom:14px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      background:var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+      color:var(--ink);
+      line-height:1.6;
+    }
+    
+    /* Header */
+    header{
+      background:linear-gradient(135deg,var(--brand),var(--brand-light));
+      color:#fff;
+      padding:1.25rem 1rem;
+      position:sticky;
+      top:0;
+      z-index:100;
+      box-shadow:var(--shadow-lg);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    h1{
+      font-size:1.5rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+    }
+    .user-info{
+      display:flex;
+      align-items:center;
+      gap:0.75rem;
+      font-size:0.9rem;
+    }
+    .user-avatar{
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.3);
+    }
+    .btn-signout{
+      background:rgba(255,255,255,.2);
+      border:none;
+      color:#fff;
+      padding:0.5rem 1rem;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:0.875rem;
+      transition:background 0.2s;
+    }
+    .btn-signout:hover{
+      background:rgba(255,255,255,.3);
+    }
+    
+    /* Main */
+    main{
+      max-width:1200px;
+      margin:0 auto;
+      padding:1.5rem 1rem;
+    }
+    
+    /* Auth Screen */
+    .auth-screen{
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,var(--brand),var(--brand-light));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+    }
+    .auth-box{
+      background:#fff;
+      padding:3rem;
+      border-radius:16px;
+      box-shadow:var(--shadow-lg);
+      text-align:center;
+      max-width:400px;
+      width:90%;
+    }
+    .auth-box h2{
+      color:var(--brand);
+      margin-bottom:1rem;
+      font-size:1.75rem;
+    }
+    .auth-box p{
+      color:var(--muted);
+      margin-bottom:2rem;
+    }
+    .btn-google{
+      background:#fff;
+      border:2px solid var(--border);
+      padding:0.875rem 2rem;
+      border-radius:8px;
+      font-size:1rem;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:0.75rem;
+      transition:all 0.2s;
+      font-weight:500;
+    }
+    .btn-google:hover{
+      border-color:var(--brand);
+      box-shadow:var(--shadow);
+    }
+    
+    /* Panel */
+    .panel{
+      background:var(--surface);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      padding:1.5rem;
+      margin-bottom:1.5rem;
+    }
+    h2{
+      font-size:1.25rem;
+      font-weight:600;
+      margin-bottom:1rem;
+      color:var(--brand);
+    }
+    
+    /* Form Elements */
+    textarea,input[type="text"],input[type="password"],select{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:0.75rem;
+      font:inherit;
+      outline:none;
+      transition:border-color 0.2s;
+      background:var(--surface);
+    }
+    textarea:focus,input:focus,select:focus{
+      border-color:var(--brand);
+    }
+    textarea{
+      min-height:80px;
+      resize:vertical;
+    }
+    
+    /* Buttons */
+    .btn{
+      border:none;
+      border-radius:8px;
+      padding:0.75rem 1.25rem;
+      font:inherit;
+      font-weight:500;
+      cursor:pointer;
+      transition:all 0.2s;
+      display:inline-flex;
+      align-items:center;
+      gap:0.5rem;
+    }
+    .btn-brand{
+      background:var(--brand);
+      color:#fff;
+    }
+    .btn-brand:hover{
+      background:var(--brand-dark);
+      transform:translateY(-1px);
+    }
+    .btn-ghost{
+      background:var(--bg);
+      color:var(--ink);
+    }
+    .btn-ghost:hover{
+      background:#e0f2fe;
+    }
+    .btn-sm{
+      padding:0.5rem 0.875rem;
+      font-size:0.875rem;
+    }
+    
+    /* Grid & Layout */
+    .grid{display:grid;gap:1rem}
+    .row{
+      display:flex;
+      gap:0.75rem;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    
+    /* Chat */
+    #chat-box{
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:1rem;
+      min-height:200px;
+      max-height:400px;
+      background:#fefefe;
+      overflow-y:auto;
+      margin-bottom:1rem;
+    }
+    .msg{
+      display:flex;
+      margin:0.75rem 0;
+      animation:fadeIn 0.3s;
+    }
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .msg .b{
+      padding:0.75rem 1rem;
+      border-radius:12px;
+      max-width:85%;
+      white-space:pre-wrap;
+      line-height:1.5;
+      word-wrap:break-word;
+    }
+    .me{justify-content:flex-end}
+    .me .b{
+      background:var(--brand);
+      color:#fff;
+    }
+    .ai .b{
+      background:#f1f5f9;
+      color:var(--ink);
+    }
+    
+    /* Chat Input Area */
+    .chat-input-area{
+      display:grid;
+      gap:0.75rem;
+    }
+    .chat-controls{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:0.75rem;
+      align-items:end;
+    }
+    #chat-input{
+      min-height:60px;
+      resize:none;
+    }
+    
+    /* Cards */
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:1.25rem;
+    }
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      padding:1.25rem;
+      transition:all 0.2s;
+    }
+    .card:hover{
+      box-shadow:var(--shadow-lg);
+      transform:translateY(-2px);
+    }
+    .title-row{
+      display:flex;
+      gap:0.75rem;
+      align-items:start;
+      margin-bottom:0.75rem;
+    }
+    .card-title{
+      flex:1;
+      font-weight:600;
+      font-size:1.1rem;
+      line-height:1.3;
+    }
+    .star{
+      cursor:pointer;
+      font-size:1.5rem;
+      line-height:1;
+      transition:transform 0.2s;
+      color:#ddd;
+    }
+    .star:hover{transform:scale(1.2)}
+    .star.active{color:#f59e0b}
+    .card-meta{
+      color:var(--muted);
+      font-size:0.875rem;
+      margin-bottom:0.75rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.5rem;
+    }
+    .card-section{
+      margin-top:1rem;
+      padding-top:1rem;
+      border-top:1px solid var(--border);
+    }
+    .card-section-title{
+      font-size:0.75rem;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+      margin-bottom:0.5rem;
+      font-weight:600;
+    }
+    .card-content{
+      font-size:0.9rem;
+      line-height:1.6;
+    }
+    .actions{
+      display:flex;
+      gap:0.5rem;
+      margin-top:1rem;
+    }
+    .danger{background:#fee2e2;color:#dc2626}
+    .danger:hover{background:#fecaca}
+    .success{background:#d1fae5;color:#059669}
+    .success:hover{background:#a7f3d0}
+    
+    /* Filters */
+    .filters{
+      display:grid;
+      grid-template-columns:2fr 1fr 1fr 1fr;
+      gap:0.75rem;
+    }
+    
+    /* Modal */
+    #key-modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.5);
+      z-index:1000;
+      padding:1rem;
+    }
+    .modal{
+      background:#fff;
+      padding:2rem;
+      border-radius:12px;
+      box-shadow:var(--shadow-lg);
+      width:100%;
+      max-width:500px;
+    }
+    .modal h3{
+      margin-bottom:0.5rem;
+      color:var(--brand);
+    }
+    .modal p{
+      color:var(--muted);
+      font-size:0.9rem;
+      margin-bottom:1rem;
+    }
+    
+    /* Float Button */
+    .float-btn{
+      position:fixed;
+      right:1rem;
+      bottom:1rem;
+      z-index:50;
+      box-shadow:var(--shadow-lg);
+    }
+    
+    /* Sync Status */
+    .sync-status{
+      display:inline-flex;
+      align-items:center;
+      gap:0.5rem;
+      font-size:0.875rem;
+      color:rgba(255,255,255,.9);
+    }
+    .sync-indicator{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#10b981;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{
+      0%,100%{opacity:1}
+      50%{opacity:0.5}
+    }
+    
+    /* Mobile Responsive */
+    @media(max-width:768px){
+      h1{font-size:1.25rem}
+      h2{font-size:1.1rem}
+      main{padding:1rem 0.75rem}
+      .panel{padding:1rem;margin-bottom:1rem}
+      .filters{grid-template-columns:1fr}
+      .cards{grid-template-columns:1fr}
+      .chat-controls{grid-template-columns:1fr}
+      .chat-controls .btn{width:100%;justify-content:center}
+      #btn-build{order:3}
+      .row{flex-direction:column;align-items:stretch}
+      .btn{width:100%;justify-content:center}
+      .msg .b{max-width:90%}
+      .float-btn{right:0.75rem;bottom:0.75rem;font-size:0.875rem;padding:0.625rem 1rem}
+      header{flex-direction:column;gap:0.5rem;align-items:flex-start}
+      .user-info{font-size:0.8rem}
+      .user-avatar{width:32px;height:32px}
+    }
+    
+    /* Empty State */
+    .empty-state{
+      text-align:center;
+      padding:3rem 1rem;
+      color:var(--muted);
+    }
+    
+    /* Loading */
+    .loading{
+      text-align:center;
+      padding:2rem;
+      color:var(--muted);
+    }
   </style>
 </head>
 <body>
-  <header><h1>Моя кулинарная книга</h1></header>
-  <main>
-    <!-- Блок «Добавить готовый рецепт» -->
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-screen" style="display:none">
+    <div class="auth-box">
+      <div style="font-size:4rem;margin-bottom:1rem">🍳</div>
+      <h2>Кулинарная книга El Pablo</h2>
+      <p>Войдите, чтобы получить доступ к семейным рецептам</p>
+      <button id="btn-signin" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Войти через Google
+      </button>
+    </div>
+  </div>
+
+  <header>
+    <h1>🍳 Кулинарная книга El Pablo</h1>
+    <div class="user-info" id="user-info" style="display:none">
+      <div class="sync-status">
+        <div class="sync-indicator"></div>
+        Синхронизировано
+      </div>
+      <img id="user-avatar" class="user-avatar" src="" alt="" />
+      <button id="btn-signout" class="btn-signout">Выйти</button>
+    </div>
+  </header>
+  
+  <main id="main-content" style="display:none">
+    <!-- Add Recipe Block -->
     <section class="panel">
-      <h2>Добавить готовый рецепт</h2>
+      <h2>📝 Добавить готовый рецепт</h2>
       <div class="grid">
         <textarea id="raw" placeholder="Вставьте готовый рецепт или продиктуйте идею…"></textarea>
         <div class="row">
           <input id="file-audio" type="file" accept="audio/*" />
-          <button id="btn-clear" class="btn btn-ghost">Очистить</button>
+          <button id="btn-clear" class="btn btn-ghost btn-sm">Очистить</button>
           <button id="btn-to-chat" class="btn btn-brand">Отправить в чат для разметки</button>
         </div>
       </div>
     </section>
 
-    <!-- Чат с ИИ -->
+    <!-- AI Chat -->
     <section class="panel">
-      <h2>Создать или доработать рецепт с ИИ</h2>
+      <h2>💬 Создать или доработать рецепт с ИИ</h2>
       <div id="chat-box"></div>
-      <div class="toolbar">
-        <button id="btn-mic" class="btn btn-ghost" title="Надиктовать">🎤</button>
-        <textarea id="chat-input" placeholder="Скажите или напишите сообщение…" style="flex:1"></textarea>
-        <button id="btn-send" class="btn btn-brand">Отправить</button>
-        <button id="btn-build" class="btn btn-ghost right">Сформировать рецепт</button>
+      <div class="chat-input-area">
+        <div class="chat-controls">
+          <button id="btn-mic" class="btn btn-ghost" title="Надиктовать">🎤</button>
+          <textarea id="chat-input" placeholder="Напишите или надиктуйте сообщение…"></textarea>
+          <button id="btn-send" class="btn btn-brand">Отправить</button>
+        </div>
+        <button id="btn-build" class="btn btn-brand">✨ Сформировать рецепт</button>
       </div>
     </section>
 
-    <!-- Поиск и фильтры -->
+    <!-- Search & Filters -->
     <section class="panel">
-      <h2>Поиск и фильтры</h2>
-      <div class="row">
+      <h2>🔍 Поиск и фильтры</h2>
+      <div class="filters">
         <input id="search" type="text" placeholder="Поиск по названию или ингредиентам" />
-        <select id="filter-category" class="right">
-          <option value="">Категория</option>
+        <select id="filter-category">
+          <option value="">Все категории</option>
           <option>завтрак</option>
           <option>суп</option>
           <option>второе</option>
@@ -98,6 +504,7 @@
           <option>рыба и морепродукты</option>
           <option>детское</option>
           <option>постное</option>
+          <option>напитки</option>
         </select>
         <select id="filter-time">
           <option value="">Время ≤</option>
@@ -108,37 +515,222 @@
         </select>
         <select id="filter-fav">
           <option value="all">Все</option>
-          <option value="only">Только избранные</option>
+          <option value="only">Избранные</option>
           <option value="exclude">Без избранных</option>
         </select>
       </div>
     </section>
 
-    <!-- Каталог -->
+    <!-- Catalog -->
     <section class="panel">
-      <h2>Мои рецепты</h2>
-      <div id="cards" class="cards"></div>
+      <h2>📚 Наши рецепты</h2>
+      <div id="cards" class="cards">
+        <div class="loading">Загрузка рецептов...</div>
+      </div>
     </section>
   </main>
 
-  <!-- Кнопка «Сменить ключ» -->
-  <button class="btn btn-ghost right-float" onclick="changeKey()">Сменить ключ</button>
+  <!-- Change Key Button -->
+  <button class="btn btn-ghost float-btn" onclick="changeKey()" style="display:none" id="key-btn">🔑 Сменить ключ</button>
 
-  <!-- Модалка ключа -->
+  <!-- Key Modal -->
   <div id="key-modal">
     <div class="modal">
-      <h3 style="margin:0 0 8px">Введите ключ OpenAI</h3>
-      <p style="margin:0 0 10px;color:var(--muted)">Ключ сохранится только в этом браузере (localStorage). Его можно сменить позже.</p>
+      <h3>Введите ключ OpenAI</h3>
+      <p>Ключ сохранится только в этом браузере (localStorage). Его можно сменить позже.</p>
       <input id="key-input" type="password" placeholder="sk-..." />
-      <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <div class="row" style="justify-content:flex-end;margin-top:1rem">
         <button id="key-cancel" class="btn btn-ghost">Отмена</button>
         <button id="key-save" class="btn btn-brand">Сохранить</button>
       </div>
     </div>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
   <script>
-    // ====== Обфускация ключа (мягкая) ======
+    // ====== FIREBASE CONFIG ======
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfl4HQ02HuVg_1XVDqfLKSq3urVAp2n14",
+      authDomain: "el-pablo-cookbook.firebaseapp.com",
+      databaseURL: "https://el-pablo-cookbook-default-rtdb.europe-west1.firebasedatabase.app", // ЗАМЕНИ после создания Realtime Database!
+      projectId: "el-pablo-cookbook",
+      storageBucket: "el-pablo-cookbook.firebasestorage.app",
+      messagingSenderId: "59503956225",
+      appId: "1:59503956225:web:bf1c8d082b8c8528918b00"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    let currentUser = null;
+
+    // ====== AUTH ======
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('key-btn').style.display = 'block';
+        document.getElementById('user-info').style.display = 'flex';
+        document.getElementById('user-avatar').src = user.photoURL || '';
+        ensureKey();
+        listenToRecipes();
+        if (!sessionStorage.getItem('greeted')) { 
+          addMsg('assistant','Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.'); 
+          sessionStorage.setItem('greeted','1'); 
+        }
+      } else {
+        currentUser = null;
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('key-btn').style.display = 'none';
+        document.getElementById('user-info').style.display = 'none';
+      }
+    });
+
+    document.getElementById('btn-signin').onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(err => alert('Ошибка входа: ' + err.message));
+    };
+
+    document.getElementById('btn-signout').onclick = () => {
+      auth.signOut();
+    };
+
+    // ====== RECIPES DATABASE ======
+    let recipesCache = [];
+
+    function listenToRecipes() {
+      const recipesRef = database.ref('recipes');
+      recipesRef.on('value', snapshot => {
+        recipesCache = [];
+        snapshot.forEach(child => {
+          recipesCache.push({ id: child.key, ...child.val() });
+        });
+        render();
+      });
+    }
+
+    function addRecipe(recipe) {
+      const recipesRef = database.ref('recipes');
+      recipesRef.push({
+        ...recipe,
+        createdBy: currentUser.uid,
+        createdAt: Date.now()
+      });
+    }
+
+    function updateRecipe(id, updates) {
+      database.ref('recipes/' + id).update(updates);
+    }
+
+    function deleteRecipe(id) {
+      database.ref('recipes/' + id).remove();
+    }
+
+    function toggleFavorite(id, currentFav) {
+      const favRef = database.ref(`recipes/${id}/favorites/${currentUser.uid}`);
+      if (currentFav) {
+        favRef.remove();
+      } else {
+        favRef.set(true);
+      }
+    }
+
+    // ====== RENDER ======
+    function render() {
+      const root = document.getElementById('cards');
+      const q = (document.getElementById('search').value || '').toLowerCase();
+      const cat = document.getElementById('filter-category').value;
+      const tmax = Number(document.getElementById('filter-time').value || 0);
+      const fav = document.getElementById('filter-fav').value;
+      root.innerHTML = '';
+      
+      const filtered = recipesCache.filter(r => {
+        const inQ = !q || (r.title || '').toLowerCase().includes(q) || (r.ingredients_plain || '').includes(q);
+        const inCat = !cat || (r.category || '') === cat;
+        const inTime = !tmax || (parseInt(r.time || '0') || 999) <= tmax;
+        const isFav = r.favorites && r.favorites[currentUser.uid];
+        const inFav = fav === 'all' || (fav === 'only' && isFav) || (fav === 'exclude' && !isFav);
+        return inQ && inCat && inTime && inFav;
+      });
+      
+      if (filtered.length === 0) {
+        root.innerHTML = '<div class="empty-state"><div style="font-size:3rem;margin-bottom:1rem">🍽️</div><p>Пока нет рецептов по выбранным фильтрам</p></div>';
+        return;
+      }
+      
+      filtered.forEach(r => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        
+        const row = document.createElement('div');
+        row.className = 'title-row';
+        const h = document.createElement('div');
+        h.className = 'card-title';
+        h.textContent = r.title || 'Без названия';
+        const star = document.createElement('span');
+        const isFav = r.favorites && r.favorites[currentUser.uid];
+        star.className = 'star' + (isFav ? ' active' : '');
+        star.textContent = '★';
+        star.onclick = () => toggleFavorite(r.id, isFav);
+        row.append(h, star);
+        
+        const meta = document.createElement('div');
+        meta.className = 'card-meta';
+        meta.innerHTML = `<span>⏱ ${r.time || '—'}</span><span>🍽 ${r.servings || '—'}</span><span>${r.category || '—'}</span>`;
+        
+        const ing = document.createElement('div');
+        ing.className = 'card-section';
+        ing.innerHTML = '<div class="card-section-title">Ингредиенты</div><div class="card-content">' + (r.ingredients || '').replace(/\n/g, '<br>') + '</div>';
+        
+        const st = document.createElement('div');
+        st.className = 'card-section';
+        st.innerHTML = '<div class="card-section-title">Приготовление</div><div class="card-content">' + (r.steps || '').replace(/\n/g, '<br>') + '</div>';
+        
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const bEdit = document.createElement('button');
+        bEdit.className = 'btn btn-sm success';
+        bEdit.textContent = '✎ Редактировать';
+        bEdit.onclick = () => editRecipe(r);
+        const bDel = document.createElement('button');
+        bDel.className = 'btn btn-sm danger';
+        bDel.textContent = '🗑 Удалить';
+        bDel.onclick = () => {
+          if (confirm('Удалить рецепт?')) deleteRecipe(r.id);
+        };
+        actions.append(bEdit, bDel);
+        
+        c.append(row, meta, ing, st, actions);
+        root.append(c);
+      });
+    }
+
+    function editRecipe(r) {
+      const t = prompt('Название', r.title || '') || r.title;
+      const cat = prompt('Категория', r.category || '') || r.category;
+      const sv = prompt('Порции', r.servings || '') || r.servings;
+      const tm = prompt('Общее время (мин)', r.time || '') || r.time;
+      const ing = prompt('Ингредиенты (каждый с новой строки)', r.ingredients || '') || r.ingredients;
+      const st = prompt('Шаги (каждый с новой строки)', r.steps || '') || r.steps;
+      updateRecipe(r.id, {
+        title: t,
+        category: cat,
+        servings: sv,
+        time: tm,
+        ingredients: ing,
+        steps: st,
+        ingredients_plain: (ing || '').toLowerCase()
+      });
+    }
+
+    // ====== OPENAI KEY ======
     const KEY_STORAGE = 'family_cookbook_key_obf_v1';
     const SALT = 'fcookbook_salt_2025';
     const toB64 = s => btoa(unescape(encodeURIComponent(s)));
@@ -163,57 +755,7 @@
     function changeKey(){ showKeyModal(); }
     window.changeKey = changeKey;
 
-    // ====== Мини‑хранилище рецептов ======
-    const STORE = 'family_cookbook_recipes_v1';
-    const load = () => { try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){return []} };
-    const save = (v) => localStorage.setItem(STORE, JSON.stringify(v));
-
-    // ====== Рендер карточек ======
-    function render(){
-      const root=document.getElementById('cards');
-      const q=(document.getElementById('search').value||'').toLowerCase();
-      const cat=document.getElementById('filter-category').value;
-      const tmax=Number(document.getElementById('filter-time').value||0);
-      const fav=document.getElementById('filter-fav').value;
-      root.innerHTML='';
-      load().filter(r=>{
-        const inQ = !q || (r.title||'').toLowerCase().includes(q) || (r.ingredients_plain||'').includes(q);
-        const inCat = !cat || (r.category||'')===cat;
-        const inTime = !tmax || (parseInt(r.time||'0')||999) <= tmax;
-        const inFav = fav==='all' || (fav==='only'&&r.fav) || (fav==='exclude'&&!r.fav);
-        return inQ && inCat && inTime && inFav;
-      }).forEach((r,idx)=>{
-        const c=document.createElement('div');c.className='card';
-        const row=document.createElement('div');row.className='title-row';
-        const h=document.createElement('strong');h.textContent=r.title||'Без названия';
-        const star=document.createElement('span');star.className='star'+(r.fav?' active':'');star.textContent='★';
-        star.onclick=()=>{const arr=load();arr[idx].fav=!arr[idx].fav;save(arr);render();};
-        row.append(h,star);
-        const p=document.createElement('div');p.className='small';p.textContent=`⏱ ${r.time||''} • 🍽 ${r.servings||''} • ${r.category||''}`;
-        const ing=document.createElement('div');ing.innerHTML='<div class="small">Ингредиенты:</div>'+(r.ingredients||'').replace(/\n/g,'<br>');
-        const st=document.createElement('div');st.innerHTML='<div class="small">Шаги:</div>'+(r.steps||'').replace(/\n/g,'<br>');
-        const actions=document.createElement('div');actions.className='actions';
-        const bEdit=document.createElement('button');bEdit.className='btn ok';bEdit.textContent='✎ Редактировать'; bEdit.onclick=()=>editRecipe(idx);
-        const bDel=document.createElement('button');bDel.className='btn danger';bDel.textContent='🗑 Удалить'; bDel.onclick=()=>{if(confirm('Удалить рецепт?')){const arr=load();arr.splice(idx,1);save(arr);render();}};
-        actions.append(bEdit,bDel);
-        c.append(row,p,ing,st,actions);
-        root.append(c);
-      });
-    }
-
-    function editRecipe(i){
-      const arr=load(); const r=arr[i];
-      const t=prompt('Название', r.title||'')||r.title;
-      const cat=prompt('Категория (например, суп, блюда на гриле…)', r.category||'')||r.category;
-      const sv=prompt('Порции', r.servings||'')||r.servings;
-      const tm=prompt('Общее время (мин)', r.time||'')||r.time;
-      const ing=prompt('Ингредиенты (каждый с новой строки)', r.ingredients||'')||r.ingredients;
-      const st=prompt('Шаги (каждый с новой строки)', r.steps||'')||r.steps;
-      arr[i] = {...r, title:t, category:cat, servings:sv, time:tm, ingredients:ing, steps:st, ingredients_plain:(ing||'').toLowerCase()};
-      save(arr); render();
-    }
-
-    // ====== Общие функции чата ======
+    // ====== CHAT ======
     function addMsg(role,text){
       const box=document.getElementById('chat-box');
       const wrap=document.createElement('div');wrap.className='msg '+(role==='user'?'me':'ai');
@@ -222,7 +764,7 @@
 
     async function callOpenAIChat(messages){
       const key=getObfKey(); if(!key){ ensureKey(); throw new Error('Нет ключа'); }
-      const resp=await fetch('https://api.openai.com/v1/chat/completions',{ method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'}, body:JSON.stringify({model:'gpt-4.1-mini',messages,temperature:0.2}) });
+      const resp=await fetch('https://api.openai.com/v1/chat/completions',{ method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'}, body:JSON.stringify({model:'gpt-4o-mini',messages,temperature:0.2}) });
       if(!resp.ok){ if(resp.status===401){ clearObfKey(); ensureKey(); } throw new Error('OpenAI error '+resp.status); }
       return await resp.json();
     }
@@ -235,25 +777,31 @@
       return await resp.json();
     }
 
-    // ====== Чат и генерация рецепта ======
     const messages=[{role:'system',content:[
       'Ты — талантливый и доброжелательный шеф-повар, который кайфует от домашней кухни.',
-      'Стиль общения: живой, молодёжный, но уместный; можно иногда лёгкие эмодзи и сленг, без перебора.',
+      'Стиль общения: живой, молодёжный, но уместный; можно иногда лёгкие смодзи и сленг, без перебора.',
       'Всегда отвечай по делу, помогай упростить жизнь на кухне и не усложняй, если можно проще.',
       'Форматирование текста: используй короткие абзацы, подзаголовки, маркированные списки для ингредиентов/шагов, пустые строки между блоками.',
-      'Единицы: только метрическая система (г, кг, мл, л, °C); порции — real-life (2–6 порций по умолчанию, если не указано).',
+      'Единицы: только метрическая система (г, кг, мл, л, °C); порции — real-life (2—6 порций по умолчанию, если не указано).',
       'Стратегия: сначала уточни важные детали (аллергии, оборудование, время), но не задавай слишком много вопросов сразу.',
-      'Если просят вариант быстрее/дешевле/полезнее — предложи 2–3 опции с плюсами.',
-      'Безопасность и реализм: не придумывай опасных советов; температуры/времена — правдоподобные; помечай, если что-то приблизительно.',
+      'Если просят вариант быстрее/дешевле/полезнее — предложи 2—3 опции с плюсами.',
+      'Безопасность и реализм: не придумывай опасных советов; температуры/времена — правдоподобные; помечай, если что-то приблизительное.',
       'Язык: русский.',
-      'Тон: дружелюбный и энергичный; иногда можно вставить лёгкий юмор, эмодзи типа 😋🔥✨ уместно. Избегай токсичного, грубого или снисходительного тона.',
-      'Краткость: цель — 6–10 коротких предложений + списки. Без лишней воды.'
+      'Тон: дружелюбный и энергичный; иногда можно вставить лёгкий юмор, смодзи типа 😋🔥✨ уместно. Избегай токсичного, грубого или снисходительного тона.',
+      'Краткость: цель — 6—10 коротких предложений + списки. Без лишней воды.'
     ].join('\n')}];
 
     document.getElementById('btn-send').onclick=async()=>{
       const t=(document.getElementById('chat-input').value||'').trim(); if(!t) return;
       document.getElementById('chat-input').value=''; addMsg('user',t); messages.push({role:'user',content:t});
-      const data=await callOpenAIChat(messages); const a=data.choices?.[0]?.message?.content||''; messages.push({role:'assistant',content:a}); addMsg('assistant',a);
+      try{
+        const data=await callOpenAIChat(messages); 
+        const a=data.choices?.[0]?.message?.content||''; 
+        messages.push({role:'assistant',content:a}); 
+        addMsg('assistant',a);
+      }catch(e){
+        addMsg('assistant','❌ Ошибка: '+e.message);
+      }
     };
 
     document.getElementById('btn-build').onclick=async()=>{
@@ -265,32 +813,49 @@
         '  "title": "",',
         '  "category": "",',
         '  "servings": 0,',
-        '  "time": "",             // например: "35 мин"',
-        '  "ingredients": ["", ""],// в метрической системе, понятные продукты',
-        '  "steps": ["", ""],      // короткие, пронумерованные действия без воды',
-        '  "notes": "",            // лайфхаки/вариации',
+        '  "time": "",',
+        '  "ingredients": ["", ""],',
+        '  "steps": ["", ""],',
+        '  "notes": "",',
         '  "tags": ["", ""]',
         '}',
         `Идея: ${raw}`
       ].join('\n');
-      messages.push({role:'user',content:ask}); addMsg('user','Сформируй итоговый рецепт…');
-      const data=await callOpenAIChat(messages); const txt=data.choices?.[0]?.message?.content||''; addMsg('assistant',txt);
+      messages.push({role:'user',content:ask}); 
+      addMsg('user','Формирую итоговый рецепт…');
       try{
+        const data=await callOpenAIChat(messages); 
+        const txt=data.choices?.[0]?.message?.content||''; 
+        addMsg('assistant',txt);
         const json=JSON.parse(txt.replace(/```json|```/g,''));
-        const arr=load();
-        arr.unshift({ title:json.title||'Без названия', category:json.category||'', servings:json.servings||'', time:json.time||'', ingredients:(json.ingredients||[]).join('\n'), steps:(json.steps||[]).join('\n'), fav:false, ingredients_plain:(json.ingredients||[]).join(', ').toLowerCase() });
-        save(arr); render(); alert('Рецепт добавлен в каталог.');
-      }catch(e){ console.warn('Не JSON от модели, можно скопировать вручную'); }
+        addRecipe({
+          title:json.title||'Без названия', 
+          category:json.category||'', 
+          servings:json.servings||'', 
+          time:json.time||'', 
+          ingredients:(json.ingredients||[]).join('\n'), 
+          steps:(json.steps||[]).join('\n'), 
+          ingredients_plain:(json.ingredients||[]).join(', ').toLowerCase()
+        });
+        alert('✅ Рецепт добавлен в каталог и синхронизирован!');
+      }catch(e){ 
+        console.warn('Не JSON от модели:', e);
+        addMsg('assistant','❌ Не удалось распознать JSON. Попробуй ещё раз или скопируй вручную.');
+      }
     };
 
-    // Отправка «готового рецепта» из верхнего поля в чат
     document.getElementById('btn-to-chat').onclick=()=>{
-      const v=(document.getElementById('raw').value||'').trim(); if(!v) return alert('Введите текст рецепта или идеи');
+      const v=(document.getElementById('raw').value||'').trim(); 
+      if(!v) return alert('Введите текст рецепта или идеи');
       document.getElementById('chat-input').value='Разметь и приведи к структуре этот текст:\n\n'+v;
       document.getElementById('btn-send').click();
     };
 
-    // Микрофон: запись → Whisper → в чат
+    document.getElementById('btn-clear').onclick=()=>{
+      document.getElementById('raw').value='';
+    };
+
+    // ====== VOICE ======
     let mediaRecorder=null, chunks=[]; let isRecording=false;
     document.getElementById('btn-mic').onclick = async () => {
       const btn=document.getElementById('btn-mic');
@@ -303,21 +868,53 @@
             const blob=new Blob(chunks,{type:'audio/webm'});
             const file=new File([blob],'voice.webm',{type:'audio/webm'});
             addMsg('user','[Голосовое: распознаю…]');
-            try{ const tr=await transcribeAudio(file); const text=tr.text||''; if(text){ addMsg('user',text); messages.push({role:'user',content:text}); const data=await callOpenAIChat(messages); const a=data.choices?.[0]?.message?.content||''; messages.push({role:'assistant',content:a}); addMsg('assistant',a);} }
-            catch(e){ addMsg('assistant','[Не удалось распознать аудио]'); }
+            try{ 
+              const tr=await transcribeAudio(file); 
+              const text=tr.text||''; 
+              if(text){ 
+                addMsg('user',text); 
+                messages.push({role:'user',content:text}); 
+                const data=await callOpenAIChat(messages); 
+                const a=data.choices?.[0]?.message?.content||''; 
+                messages.push({role:'assistant',content:a}); 
+                addMsg('assistant',a);
+              } 
+            }catch(e){ addMsg('assistant','[Не удалось распознать аудио]'); }
           };
-          mediaRecorder.start(); isRecording=true; btn.textContent='■'; btn.style.background='#ff4d4f'; btn.style.color='#fff'; btn.title='Остановить запись';
+          mediaRecorder.start(); 
+          isRecording=true; 
+          btn.textContent='■'; 
+          btn.style.background='#dc2626'; 
+          btn.style.color='#fff'; 
+          btn.title='Остановить запись';
         }catch(e){ alert('Нет доступа к микрофону'); }
       } else {
-        mediaRecorder?.stop(); isRecording=false; btn.textContent='🎤'; btn.style.background=''; btn.style.color=''; btn.title='Надиктовать';
+        mediaRecorder?.stop(); 
+        isRecording=false; 
+        btn.textContent='🎤'; 
+        btn.style.background=''; 
+        btn.style.color=''; 
+        btn.title='Надиктовать';
       }
     };
 
-    // Аудио из верхнего блока → текст в поле «Добавить готовый рецепт»
-    document.getElementById('file-audio').onchange=async(e)=>{ const f=e.target.files?.[0]; if(!f) return; const tr=await transcribeAudio(f); document.getElementById('raw').value=(tr.text||''); e.target.value=''; };
+    document.getElementById('file-audio').onchange=async(e)=>{ 
+      const f=e.target.files?.[0]; 
+      if(!f) return; 
+      try{
+        const tr=await transcribeAudio(f); 
+        document.getElementById('raw').value=(tr.text||''); 
+      }catch(e){
+        alert('Ошибка распознавания: '+e.message);
+      }
+      e.target.value=''; 
+    };
 
-    // Старт
-    window.addEventListener('DOMContentLoaded', () => { ensureKey(); render(); if (!sessionStorage.getItem('greeted')) { addMsg('assistant','Привет! Я ваш шеф‑повар 🤝 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.'); sessionStorage.setItem('greeted','1'); } });
+    // ====== FILTERS ======
+    document.getElementById('search').oninput = render;
+    document.getElementById('filter-category').onchange = render;
+    document.getElementById('filter-time').onchange = render;
+    document.getElementById('filter-fav').onchange = render;
   </script>
 </body>
 </html>
