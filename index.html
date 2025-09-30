@@ -851,53 +851,53 @@
       }
     };
 
-    document.getElementById('btn-build').onclick=async()=>{
-      const ask=[
-        'Собери итоговый рецепт по нашей переписке.',
-        'ВАЖНО: В массиве steps каждый шаг должен содержать ТОЧНЫЕ количества ингредиентов.',
-        'Например: "Взбей 3 яйца со 180 г сахара до пышности" вместо "Взбей яйца с сахаром".',
-        '',
-        'Верни ТОЛЬКО валидный JSON (без пояснений) со структурой:',
-        '{',
-        '  "title": "Название блюда",',
-        '  "category": "категория",',
-        '  "servings": 4,',
-        '  "time": "45 мин",',
-        '  "ingredients": [',
-        '    "3 яйца",',
-        '    "180 г сахара",',
-        '    "2 г ванильного сахара"',
-        '  ],',
-        '  "steps": [',
-        '    "Взбей 3 яйца со 180 г сахара и 2 г ванильного сахара до пышности.",',
-        '    "Добавь 200 мл молока и 50 г растопленного масла, перемешай."',
-        '  ],',
-        '  "notes": "Советы и вариации",',
-        '  "tags": ["тег1", "тег2"]',
-        '}'
-      ].join('\n');
-      messages.push({role:'user',content:ask}); 
-      addMsg('user','Формирую итоговый рецепт…');
-      try{
-        const data=await callOpenAIChat(messages); 
-        const txt=data.choices?.[0]?.message?.content||''; 
-        addMsg('assistant',txt);
-        const json=JSON.parse(txt.replace(/```json|```/g,''));
-        addRecipe({
-          title:json.title||'Без названия', 
-          category:json.category||'', 
-          servings:json.servings||'', 
-          time:json.time||'', 
-          ingredients:(json.ingredients||[]).join('\n'), 
-          steps:(json.steps||[]).join('\n'), 
-          ingredients_plain:(json.ingredients||[]).join(', ').toLowerCase()
-        });
-        alert('✅ Рецепт добавлен в каталог и синхронизирован!');
-      }catch(e){ 
-        console.warn('Не JSON от модели:', e);
-        addMsg('assistant','❌ Не удалось распознать JSON. Попробуй ещё раз или скопируй вручную.');
-      }
-    };
+  document.getElementById('btn-build').onclick=async()=>{
+    const ask=[
+      'Собери итоговый рецепт по нашей переписке.',
+      'ВАЖНО: В массиве steps каждый шаг должен содержать ТОЧНЫЕ количества ингредиентов.',
+      'Например: "Взбей 3 яйца со 180 г сахара до пышности" вместо "Взбей яйца с сахаром".',
+      '',
+      'Верни ТОЛЬКО валидный JSON (без пояснений) со структурой:',
+      '{',
+      '  "title": "Название блюда",',
+      '  "category": "категория",',
+      '  "servings": 4,',
+      '  "time": "45 мин",',
+      '  "ingredients": ["3 яйца", "180 г сахара"],',
+      '  "steps": ["Взбей 3 яйца со 180 г сахара до пышности."],',
+      '  "notes": "Советы",',
+      '  "tags": ["тег1"]',
+      '}'
+    ].join('\n');
+    
+    messages.push({role:'user',content:ask}); 
+    addMsg('user','Формирую рецепт…');
+    
+    try{
+      const data=await callOpenAIChat(messages); 
+      const txt=data.choices?.[0]?.message?.content||''; 
+      
+      // Парсим JSON без показа в чате
+      const json=JSON.parse(txt.replace(/```json|```/g,''));
+      
+      addRecipe({
+        title:json.title||'Без названия', 
+        category:json.category||'', 
+        servings:json.servings||'', 
+        time:json.time||'', 
+        ingredients:(json.ingredients||[]).join('\n'), 
+        steps:(json.steps||[]).join('\n'), 
+        ingredients_plain:(json.ingredients||[]).join(', ').toLowerCase()
+      });
+      
+      addMsg('assistant','✅ Рецепт добавлен в каталог!');
+      alert('✅ Рецепт добавлен в каталог и синхронизирован!');
+      
+    }catch(e){ 
+      console.warn('Ошибка:', e);
+      addMsg('assistant','❌ Не удалось создать рецепт. Попробуй ещё раз.');
+    }
+  };
 
     document.getElementById('btn-to-chat').onclick=()=>{
       const v=(document.getElementById('raw').value||'').trim(); 
