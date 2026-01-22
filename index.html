@@ -25,8 +25,7 @@
       color:var(--ink);
       line-height:1.6;
     }
-    
-    /* Header */
+
     header{
       background:linear-gradient(135deg,var(--brand),var(--brand-light));
       color:#fff;
@@ -69,15 +68,13 @@
     .btn-signout:hover{
       background:rgba(255,255,255,.3);
     }
-    
-    /* Main */
+
     main{
       max-width:1200px;
       margin:0 auto;
       padding:1.5rem 1rem;
     }
-    
-    /* Auth Screen */
+
     .auth-screen{
       position:fixed;
       inset:0;
@@ -122,8 +119,7 @@
       border-color:var(--brand);
       box-shadow:var(--shadow);
     }
-    
-    /* Panel */
+
     .panel{
       background:var(--surface);
       border-radius:12px;
@@ -137,8 +133,7 @@
       margin-bottom:1rem;
       color:var(--brand);
     }
-    
-    /* Form Elements */
+
     textarea,input[type="text"],input[type="password"],select{
       width:100%;
       border:1px solid var(--border);
@@ -156,8 +151,7 @@
       min-height:80px;
       resize:vertical;
     }
-    
-    /* Buttons */
+
     .btn{
       border:none;
       border-radius:8px;
@@ -189,8 +183,7 @@
       padding:0.5rem 0.875rem;
       font-size:0.875rem;
     }
-    
-    /* Grid & Layout */
+
     .grid{display:grid;gap:1rem}
     .row{
       display:flex;
@@ -198,8 +191,7 @@
       align-items:center;
       flex-wrap:wrap;
     }
-    
-    /* Chat */
+
     #chat-box{
       border:1px solid var(--border);
       border-radius:8px;
@@ -236,8 +228,7 @@
       background:#f1f5f9;
       color:var(--ink);
     }
-    
-    /* Chat Input Area */
+
     .chat-input-area{
       display:grid;
       gap:0.75rem;
@@ -252,8 +243,7 @@
       min-height:60px;
       resize:none;
     }
-    
-    /* Cards */
+
     .cards{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
@@ -326,53 +316,13 @@
     .danger:hover{background:#fecaca}
     .success{background:#d1fae5;color:#059669}
     .success:hover{background:#a7f3d0}
-    
-    /* Filters */
+
     .filters{
       display:grid;
       grid-template-columns:2fr 1fr 1fr 1fr;
       gap:0.75rem;
     }
-    
-    /* Modal */
-    #key-modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.5);
-      z-index:1000;
-      padding:1rem;
-    }
-    .modal{
-      background:#fff;
-      padding:2rem;
-      border-radius:12px;
-      box-shadow:var(--shadow-lg);
-      width:100%;
-      max-width:500px;
-    }
-    .modal h3{
-      margin-bottom:0.5rem;
-      color:var(--brand);
-    }
-    .modal p{
-      color:var(--muted);
-      font-size:0.9rem;
-      margin-bottom:1rem;
-    }
-    
-    /* Float Button */
-    .float-btn{
-      position:fixed;
-      right:1rem;
-      bottom:1rem;
-      z-index:50;
-      box-shadow:var(--shadow-lg);
-    }
-    
-    /* Sync Status */
+
     .sync-status{
       display:inline-flex;
       align-items:center;
@@ -391,8 +341,7 @@
       0%,100%{opacity:1}
       50%{opacity:0.5}
     }
-    
-    /* Mobile Responsive */
+
     @media(max-width:768px){
       h1{font-size:1.25rem}
       h2{font-size:1.1rem}
@@ -406,20 +355,17 @@
       .row{flex-direction:column;align-items:stretch}
       .btn{width:100%;justify-content:center}
       .msg .b{max-width:90%}
-      .float-btn{right:0.75rem;bottom:0.75rem;font-size:0.875rem;padding:0.625rem 1rem}
       header{flex-direction:column;gap:0.5rem;align-items:flex-start}
       .user-info{font-size:0.8rem}
       .user-avatar{width:32px;height:32px}
     }
-    
-    /* Empty State */
+
     .empty-state{
       text-align:center;
       padding:3rem 1rem;
       color:var(--muted);
     }
-    
-    /* Loading */
+
     .loading{
       text-align:center;
       padding:2rem;
@@ -428,7 +374,6 @@
   </style>
 </head>
 <body>
-  <!-- Auth Screen -->
   <div id="auth-screen" class="auth-screen" style="display:none">
     <div class="auth-box">
       <div style="font-size:4rem;margin-bottom:1rem">🍳</div>
@@ -452,9 +397,8 @@
       <button id="btn-signout" class="btn-signout">Выйти</button>
     </div>
   </header>
-  
+
   <main id="main-content" style="display:none">
-    <!-- AI Chat -->
     <section class="panel">
       <h2>💬 Создать рецепт с ИИ</h2>
       <div id="chat-box"></div>
@@ -468,7 +412,6 @@
       </div>
     </section>
 
-    <!-- Search & Filters -->
     <section class="panel">
       <h2>🔍 Поиск и фильтры</h2>
       <div class="filters">
@@ -508,7 +451,6 @@
       </div>
     </section>
 
-    <!-- Catalog -->
     <section class="panel">
       <h2>📚 Наши рецепты</h2>
       <div id="cards" class="cards">
@@ -517,494 +459,6 @@
     </section>
   </main>
 
-  <!-- Change Key Button -->
-  <button class="btn btn-ghost float-btn" onclick="changeKey()" style="display:none" id="key-btn">🔑 Сменить ключ</button>
-
-  <!-- Key Modal -->
-  <div id="key-modal">
-    <div class="modal">
-      <h3>Введите ключ OpenAI</h3>
-      <p>Ключ сохранится только в этом браузере (localStorage). Его можно сменить позже.</p>
-      <input id="key-input" type="password" placeholder="sk-..." />
-      <div class="row" style="justify-content:flex-end;margin-top:1rem">
-        <button id="key-cancel" class="btn btn-ghost">Отмена</button>
-        <button id="key-save" class="btn btn-brand">Сохранить</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
-  <script>
-    // ====== FIREBASE CONFIG ======
-    const firebaseConfig = {
-      apiKey: "AIzaSyAfl4HQ02HuVg_1XVDqfLKSq3urVAp2n14",
-      authDomain: "el-pablo-cookbook.firebaseapp.com",
-      databaseURL: "https://el-pablo-cookbook-default-rtdb.europe-west1.firebasedatabase.app", // ЗАМЕНИ после создания Realtime Database!
-      projectId: "el-pablo-cookbook",
-      storageBucket: "el-pablo-cookbook.firebasestorage.app",
-      messagingSenderId: "59503956225",
-      appId: "1:59503956225:web:bf1c8d082b8c8528918b00"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-    let currentUser = null;
-
-    // ====== AUTH ======
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('key-btn').style.display = 'block';
-        document.getElementById('user-info').style.display = 'flex';
-        document.getElementById('user-avatar').src = user.photoURL || '';
-        ensureKey();
-        listenToRecipes();
-        if (!sessionStorage.getItem('greeted')) { 
-          addMsg('assistant','Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.'); 
-          sessionStorage.setItem('greeted','1'); 
-        }
-      } else {
-        currentUser = null;
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('main-content').style.display = 'none';
-        document.getElementById('key-btn').style.display = 'none';
-        document.getElementById('user-info').style.display = 'none';
-      }
-    });
-
-    document.getElementById('btn-signin').onclick = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(err => alert('Ошибка входа: ' + err.message));
-    };
-
-    document.getElementById('btn-signout').onclick = () => {
-      auth.signOut();
-    };
-
-    // ====== RECIPES DATABASE ======
-    let recipesCache = [];
-
-    function listenToRecipes() {
-      const recipesRef = database.ref('recipes');
-      recipesRef.on('value', snapshot => {
-        recipesCache = [];
-        snapshot.forEach(child => {
-          recipesCache.push({ id: child.key, ...child.val() });
-        });
-        render();
-      });
-    }
-
-    function addRecipe(recipe) {
-      const recipesRef = database.ref('recipes');
-      recipesRef.push({
-        ...recipe,
-        createdBy: currentUser.uid,
-        createdAt: Date.now()
-      });
-    }
-
-    function updateRecipe(id, updates) {
-      database.ref('recipes/' + id).update(updates);
-    }
-
-    function deleteRecipe(id) {
-      database.ref('recipes/' + id).remove();
-    }
-
-    function toggleFavorite(id, currentFav) {
-      const favRef = database.ref(`recipes/${id}/favorites/${currentUser.uid}`);
-      if (currentFav) {
-        favRef.remove();
-      } else {
-        favRef.set(true);
-      }
-    }
-
-    // ====== RENDER ======
-    function render() {
-      const root = document.getElementById('cards');
-      const q = (document.getElementById('search').value || '').toLowerCase();
-      const cat = document.getElementById('filter-category').value;
-      const tmax = Number(document.getElementById('filter-time').value || 0);
-      const fav = document.getElementById('filter-fav').value;
-      root.innerHTML = '';
-      
-      const filtered = recipesCache.filter(r => {
-        const inQ = !q || (r.title || '').toLowerCase().includes(q) || (r.ingredients_plain || '').includes(q);
-        const inCat = !cat || (r.category || '') === cat;
-        const inTime = !tmax || (parseInt(r.time || '0') || 999) <= tmax;
-        const isFav = r.favorites && r.favorites[currentUser.uid];
-        const inFav = fav === 'all' || (fav === 'only' && isFav) || (fav === 'exclude' && !isFav);
-        return inQ && inCat && inTime && inFav;
-      });
-      
-      if (filtered.length === 0) {
-        root.innerHTML = '<div class="empty-state"><div style="font-size:3rem;margin-bottom:1rem">🍽️</div><p>Пока нет рецептов по выбранным фильтрам</p></div>';
-        return;
-      }
-      
-      filtered.forEach(r => {
-        const c = document.createElement('div');
-        c.className = 'card';
-        
-        const row = document.createElement('div');
-        row.className = 'title-row';
-        const h = document.createElement('div');
-        h.className = 'card-title';
-        h.textContent = r.title || 'Без названия';
-        const star = document.createElement('span');
-        const isFav = r.favorites && r.favorites[currentUser.uid];
-        star.className = 'star' + (isFav ? ' active' : '');
-        star.textContent = '★';
-        star.onclick = () => toggleFavorite(r.id, isFav);
-        row.append(h, star);
-        
-        const meta = document.createElement('div');
-        meta.className = 'card-meta';
-        meta.innerHTML = `<span>⏱ ${r.time || '—'}</span><span>🍽 ${r.servings || '—'}</span><span>${r.category || '—'}</span>`;
-        
-        const ing = document.createElement('div');
-        ing.className = 'card-section';
-        ing.innerHTML = '<div class="card-section-title">Ингредиенты</div><div class="card-content">' + (r.ingredients || '').replace(/\n/g, '<br>') + '</div>';
-        
-        const st = document.createElement('div');
-        st.className = 'card-section';
-        st.innerHTML = '<div class="card-section-title">Приготовление</div><div class="card-content">' + (r.steps || '').replace(/\n/g, '<br>') + '</div>';
-        
-        const actions = document.createElement('div');
-        actions.className = 'actions';
-        const bEdit = document.createElement('button');
-        bEdit.className = 'btn btn-sm success';
-        bEdit.textContent = '✎ Редактировать';
-        bEdit.onclick = () => editRecipe(r);
-        const bDel = document.createElement('button');
-        bDel.className = 'btn btn-sm danger';
-        bDel.textContent = '🗑 Удалить';
-        bDel.onclick = () => {
-          if (confirm('Удалить рецепт?')) deleteRecipe(r.id);
-        };
-        actions.append(bEdit, bDel);
-        
-        c.append(row, meta, ing, st, actions);
-        root.append(c);
-      });
-    }
-
-    function editRecipe(r) {
-      const t = prompt('Название', r.title || '') || r.title;
-      const cat = prompt('Категория', r.category || '') || r.category;
-      const sv = prompt('Порции', r.servings || '') || r.servings;
-      const tm = prompt('Общее время (мин)', r.time || '') || r.time;
-      const ing = prompt('Ингредиенты (каждый с новой строки)', r.ingredients || '') || r.ingredients;
-      const st = prompt('Шаги (каждый с новой строки)', r.steps || '') || r.steps;
-      updateRecipe(r.id, {
-        title: t,
-        category: cat,
-        servings: sv,
-        time: tm,
-        ingredients: ing,
-        steps: st,
-        ingredients_plain: (ing || '').toLowerCase()
-      });
-    }
-
-    // ====== OPENAI KEY ======
-    const KEY_STORAGE = 'family_cookbook_key_obf_v1';
-    const SALT = 'fcookbook_salt_2025';
-    const toB64 = s => btoa(unescape(encodeURIComponent(s)));
-    const fromB64 = s => decodeURIComponent(escape(atob(s)));
-    function xorStr(a,b){ let out=''; for(let i=0;i<a.length;i++){ out += String.fromCharCode(a.charCodeAt(i) ^ b.charCodeAt(i % b.length)); } return out; }
-    function setObfKey(plain){ localStorage.setItem(KEY_STORAGE, toB64(xorStr(plain,SALT))); }
-    function getObfKey(){ const v = localStorage.getItem(KEY_STORAGE); return v? xorStr(fromB64(v),SALT):''; }
-    function clearObfKey(){ localStorage.removeItem(KEY_STORAGE); }
-
-    function showKeyModal(){
-      const modal = document.getElementById('key-modal');
-      document.getElementById('key-input').value='';
-      modal.style.display='flex';
-      document.getElementById('key-cancel').onclick = ()=> modal.style.display='none';
-      document.getElementById('key-save').onclick = ()=>{
-        const k = document.getElementById('key-input').value.trim();
-        if(!k.startsWith('sk-')){alert('Похоже, это не ключ OpenAI.');return;}
-        setObfKey(k); modal.style.display='none'; alert('Ключ сохранён. Можно пользоваться ИИ.');
-      }
-    }
-    function ensureKey(){ if(!getObfKey()) showKeyModal(); }
-    function changeKey(){ showKeyModal(); }
-    window.changeKey = changeKey;
-
-    // ====== CHAT ======
-    function addMsg(role,text){
-      const box=document.getElementById('chat-box');
-      const wrap=document.createElement('div');wrap.className='msg '+(role==='user'?'me':'ai');
-      const b=document.createElement('div');b.className='b';b.innerText=text;wrap.append(b);box.append(wrap);box.scrollTop=box.scrollHeight;
-    }
-
-    async function callOpenAIChat(messages){
-      const key=getObfKey(); if(!key){ ensureKey(); throw new Error('Нет ключа'); }
-      
-      // Используем прокси для обхода CORS на мобильных
-      const proxyUrl = 'https://corsproxy.io/?';
-      const apiUrl = 'https://api.openai.com/v1/chat/completions';
-      
-      const resp=await fetch(proxyUrl + encodeURIComponent(apiUrl),{ 
-        method:'POST', 
-        headers:{
-          'Authorization':`Bearer ${key}`,
-          'Content-Type':'application/json'
-        }, 
-        body:JSON.stringify({model:'gpt-3.5-turbo',messages,temperature:0.2}) 
-      });
-      
-      if(!resp.ok){ 
-        const errorData = await resp.json().catch(() => ({}));
-        console.error('OpenAI API Error:', resp.status, errorData);
-        if(resp.status===401){ clearObfKey(); ensureKey(); } 
-        throw new Error(`OpenAI error ${resp.status}: ${errorData.error?.message || 'Unknown error'}`); 
-      }
-      return await resp.json();
-    }
-
-    async function transcribeAudio(file){
-      const key=getObfKey(); if(!key){ ensureKey(); throw new Error('Нет ключа'); }
-      
-      const fd=new FormData(); 
-      fd.append('file',file); 
-      fd.append('model','whisper-1');
-      
-      // Используем прокси для обхода CORS на мобильных
-      const proxyUrl = 'https://corsproxy.io/?';
-      const apiUrl = 'https://api.openai.com/v1/audio/transcriptions';
-      
-      const resp=await fetch(proxyUrl + encodeURIComponent(apiUrl),{ 
-        method:'POST', 
-        headers:{
-          'Authorization':`Bearer ${key}`
-        }, 
-        body:fd 
-      });
-      
-      if(!resp.ok){ 
-        const errorData = await resp.json().catch(() => ({}));
-        console.error('Whisper API Error:', resp.status, errorData);
-        if(resp.status===401){ clearObfKey(); ensureKey(); } 
-        throw new Error(`Whisper error ${resp.status}: ${errorData.error?.message || 'Unknown error'}`); 
-      }
-      return await resp.json();
-    }
-
-    const messages=[{role:'system',content:[
-      'Ты — талантливый шеф-повар, который пишет рецепты для НОВИЧКОВ на кухне.',
-      '',
-      '🎯 ГЛАВНОЕ ПРАВИЛО: В каждом шаге рецепта указывай ТОЧНЫЕ количества продуктов.',
-      '',
-      'ПРАВИЛЬНО: "Взбей 3 яйца со 180 г сахара и 2 г ванильного сахара до пышности."',
-      'НЕПРАВИЛЬНО: "Взбей яйца с сахаром и ванильным сахаром до пышности."',
-      '',
-      'ПРАВИЛЬНО: "Добавь 200 мл молока и 50 г растопленного сливочного масла."',
-      'НЕПРАВИЛЬНО: "Добавь молоко и масло."',
-      '',
-      '📝 Формат рецепта:',
-      '- Каждый шаг — отдельное действие с конкретными количествами',
-      '- Указывай температуру духовки, время готовки, размер формы',
-      '- Описывай консистенцию ("до густоты сметаны", "до золотистой корочки")',
-      '- Предупреждай о важных моментах ("не перемешивай слишком долго", "следи, чтобы не подгорело")',
-      '',
-      '🎨 Стиль общения:',
-      '- Дружелюбный, но чёткий',
-      '- Короткие предложения',
-      '- Можно лёгкие смайлы 😋🔥',
-      '',
-      '📏 Единицы измерения:',
-      '- Только метрическая система (г, кг, мл, л, °C)',
-      '- Порции: 2—6 по умолчанию',
-      '- Время: всегда указывай точно (не "около", а "25-30 минут")',
-      '',
-      '💡 Стратегия:',
-      '- Сначала уточни важные детали (аллергии, оборудование)',
-      '- Предлагай варианты (быстрее/дешевле/полезнее)',
-      '- Объясняй "почему" (почему нужно охладить тесто, зачем просеивать муку)',
-      '',
-      'Язык: русский',
-      'Безопасность: только проверенные техники готовки'
-    ].join('\n')}];
-
-    document.getElementById('btn-send').onclick=async()=>{
-      const t=(document.getElementById('chat-input').value||'').trim(); if(!t) return;
-      document.getElementById('chat-input').value=''; addMsg('user',t); messages.push({role:'user',content:t});
-      try{
-        const data=await callOpenAIChat(messages); 
-        const a=data.choices?.[0]?.message?.content||''; 
-        messages.push({role:'assistant',content:a}); 
-        addMsg('assistant',a);
-      }catch(e){
-        addMsg('assistant','❌ Ошибка: '+e.message);
-      }
-    };
-
-  document.getElementById('btn-build').onclick=async()=>{
-    const ask=[
-      'Собери итоговый рецепт по нашей переписке.',
-      'ВАЖНО: В массиве steps каждый шаг должен содержать ТОЧНЫЕ количества ингредиентов.',
-      'Например: "Взбей 3 яйца со 180 г сахара до пышности" вместо "Взбей яйца с сахаром".',
-      '',
-      'Верни ТОЛЬКО валидный JSON (без пояснений) со структурой:',
-      '{',
-      '  "title": "Название блюда",',
-      '  "category": "категория",',
-      '  "servings": 4,',
-      '  "time": "45 мин",',
-      '  "ingredients": ["3 яйца", "180 г сахара"],',
-      '  "steps": ["Взбей 3 яйца со 180 г сахара до пышности."],',
-      '  "notes": "Советы",',
-      '  "tags": ["тег1"]',
-      '}'
-    ].join('\n');
-    
-    messages.push({role:'user',content:ask}); 
-    addMsg('user','Формирую рецепт…');
-    
-    try{
-      const data=await callOpenAIChat(messages); 
-      const txt=data.choices?.[0]?.message?.content||''; 
-      
-      // Парсим JSON без показа в чате
-      const json=JSON.parse(txt.replace(/```json|```/g,''));
-      
-      addRecipe({
-        title:json.title||'Без названия', 
-        category:json.category||'', 
-        servings:json.servings||'', 
-        time:json.time||'', 
-        ingredients:(json.ingredients||[]).join('\n'), 
-        steps:(json.steps||[]).join('\n'), 
-        ingredients_plain:(json.ingredients||[]).join(', ').toLowerCase()
-      });
-      
-      addMsg('assistant','✅ Рецепт добавлен в каталог!');
-      alert('✅ Рецепт добавлен в каталог и синхронизирован!');
-      
-    }catch(e){ 
-      console.warn('Ошибка:', e);
-      addMsg('assistant','❌ Не удалось создать рецепт. Попробуй ещё раз.');
-    }
-  };
-
-    document.getElementById('btn-to-chat').onclick=()=>{
-      const v=(document.getElementById('raw').value||'').trim(); 
-      if(!v) return alert('Введите текст рецепта или идеи');
-      document.getElementById('chat-input').value='Разметь и приведи к структуре этот текст:\n\n'+v;
-      document.getElementById('btn-send').click();
-    };
-
-    document.getElementById('btn-clear').onclick=()=>{
-      document.getElementById('raw').value='';
-    };
-
-    // ====== VOICE ======
-    let mediaRecorder=null, chunks=[]; let isRecording=false;
-    document.getElementById('btn-mic').onclick = async () => {
-      const btn=document.getElementById('btn-mic');
-      if(!isRecording){
-        try{
-          const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-          chunks=[]; 
-          
-          // Определяем поддерживаемый MIME тип для разных браузеров
-          let mimeType = 'audio/webm';
-          if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-            mimeType = 'audio/webm;codecs=opus';
-          } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-            mimeType = 'audio/mp4';
-          } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
-            mimeType = 'audio/ogg;codecs=opus';
-          } else if (MediaRecorder.isTypeSupported('audio/wav')) {
-            mimeType = 'audio/wav';
-          }
-          
-          mediaRecorder=new MediaRecorder(stream, { mimeType });
-          console.log('Recording with MIME type:', mimeType);
-          
-          mediaRecorder.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
-          mediaRecorder.onstop=async()=>{
-            stream.getTracks().forEach(track => track.stop()); // Останавливаем микрофон
-            
-            const blob=new Blob(chunks,{type:mimeType});
-            console.log('Audio blob size:', blob.size, 'type:', blob.type);
-            
-            // Определяем расширение файла по MIME типу
-            let extension = 'webm';
-            if (mimeType.includes('mp4')) extension = 'mp4';
-            else if (mimeType.includes('ogg')) extension = 'ogg';
-            else if (mimeType.includes('wav')) extension = 'wav';
-            
-            const file=new File([blob],`voice.${extension}`,{type:mimeType});
-            addMsg('user','[Голосовое: распознаю…]');
-            try{ 
-              const tr=await transcribeAudio(file); 
-              const text=tr.text||''; 
-              console.log('Transcribed text:', text);
-              if(text){ 
-                addMsg('user',text); 
-                messages.push({role:'user',content:text}); 
-                const data=await callOpenAIChat(messages); 
-                const a=data.choices?.[0]?.message?.content||''; 
-                messages.push({role:'assistant',content:a}); 
-                addMsg('assistant',a);
-              } else {
-                addMsg('assistant','[Пустой результат распознавания]');
-              }
-            }catch(e){ 
-              console.error('Transcription error:', e);
-              addMsg('assistant','[Ошибка распознавания: '+e.message+']'); 
-            }
-          };
-          mediaRecorder.start(); 
-          isRecording=true; 
-          btn.textContent='■'; 
-          btn.style.background='#dc2626'; 
-          btn.style.color='#fff'; 
-          btn.title='Остановить запись';
-        }catch(e){ 
-          console.error('Microphone access error:', e);
-          alert('Нет доступа к микрофону: ' + e.message); 
-        }
-      } else {
-        mediaRecorder?.stop(); 
-        isRecording=false; 
-        btn.textContent='🎤'; 
-        btn.style.background=''; 
-        btn.style.color=''; 
-        btn.title='Надиктовать';
-      }
-    };
-
-    document.getElementById('file-audio').onchange=async(e)=>{ 
-      const f=e.target.files?.[0]; 
-      if(!f) return; 
-      try{
-        const tr=await transcribeAudio(f); 
-        document.getElementById('raw').value=(tr.text||''); 
-      }catch(e){
-        alert('Ошибка распознавания: '+e.message);
-      }
-      e.target.value=''; 
-    };
-
-    // ====== FILTERS ======
-    document.getElementById('search').oninput = render;
-    document.getElementById('filter-category').onchange = render;
-    document.getElementById('filter-time').onchange = render;
-    document.getElementById('filter-fav').onchange = render;
-  </script>
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>
