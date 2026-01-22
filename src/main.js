@@ -1,6 +1,7 @@
 import { supabase } from './lib/supabase.js';
 import { getRecipes, addRecipe, updateRecipe, deleteRecipe, toggleFavorite, subscribeToRecipes } from './lib/recipes.js';
 import { callOpenAIChat, transcribeAudio } from './lib/ai.js';
+import { importBulkRecipes } from './lib/importRecipes.js';
 
 let currentUser = null;
 let recipesCache = [];
@@ -53,6 +54,11 @@ async function init() {
   setupManualForm();
   setupVoice();
   setupFilters();
+  setupBulkImport();
+}
+
+function setupBulkImport() {
+  window.importBulkRecipes = importBulkRecipes;
 }
 
 function setupAuth() {
