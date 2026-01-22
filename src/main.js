@@ -50,6 +50,7 @@ let isRecording = false;
 async function init() {
   setupAuth();
   setupChat();
+  setupManualForm();
   setupVoice();
   setupFilters();
 }
@@ -270,6 +271,63 @@ function setupChat() {
     } catch (error) {
       console.error('Build recipe error:', error);
       addMsg('assistant', '❌ Не удалось создать рецепт. Попробуй ещё раз.');
+    }
+  };
+}
+
+function setupManualForm() {
+  const form = document.getElementById('manual-recipe-form');
+  const btnClear = document.getElementById('btn-clear-manual');
+
+  btnClear.onclick = () => {
+    if (confirm('Очистить форму?')) {
+      form.reset();
+    }
+  };
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById('manual-title').value.trim();
+    const category = document.getElementById('manual-category').value;
+    const servings = document.getElementById('manual-servings').value.trim();
+    const time = document.getElementById('manual-time').value.trim();
+    const ingredients = document.getElementById('manual-ingredients').value.trim();
+    const steps = document.getElementById('manual-steps').value.trim();
+    const notes = document.getElementById('manual-notes').value.trim();
+
+    if (!title) {
+      alert('Укажите название блюда');
+      return;
+    }
+
+    if (!ingredients) {
+      alert('Укажите ингредиенты');
+      return;
+    }
+
+    if (!steps) {
+      alert('Укажите шаги приготовления');
+      return;
+    }
+
+    try {
+      await addRecipe({
+        title,
+        category,
+        servings,
+        time,
+        ingredients,
+        steps,
+        notes,
+        tags: []
+      });
+
+      alert('✅ Рецепт добавлен в каталог!');
+      form.reset();
+    } catch (error) {
+      console.error('Add manual recipe error:', error);
+      alert('❌ Ошибка при добавлении рецепта: ' + error.message);
     }
   };
 }

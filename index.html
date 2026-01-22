@@ -412,6 +412,19 @@
       padding:2rem;
       color:var(--muted);
     }
+
+    .form-grid{
+      display:grid;
+      gap:1rem;
+    }
+    .form-row{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:1rem;
+    }
+    @media(max-width:768px){
+      .form-row{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -459,6 +472,49 @@
         </div>
         <button id="btn-build" class="btn btn-brand">✨ Сформировать рецепт</button>
       </div>
+    </section>
+
+    <section class="panel">
+      <h2>📝 Добавить рецепт вручную</h2>
+      <form id="manual-recipe-form" class="form-grid">
+        <input type="text" id="manual-title" placeholder="Название блюда *" required />
+
+        <div class="form-row">
+          <select id="manual-category">
+            <option value="">Категория</option>
+            <option>завтрак</option>
+            <option>суп</option>
+            <option>второе</option>
+            <option>салат</option>
+            <option>выпечка</option>
+            <option>десерт</option>
+            <option>соусы</option>
+            <option>закуски</option>
+            <option>блюда на гриле</option>
+            <option>блюда в тандыре</option>
+            <option>паста</option>
+            <option>плов</option>
+            <option>овощные блюда</option>
+            <option>рыба и морепродукты</option>
+            <option>детское</option>
+            <option>постное</option>
+            <option>напитки</option>
+          </select>
+          <input type="text" id="manual-servings" placeholder="Порций (например: 4)" />
+          <input type="text" id="manual-time" placeholder="Время (например: 30 мин)" />
+        </div>
+
+        <textarea id="manual-ingredients" placeholder="Ингредиенты (каждый с новой строки)&#10;Например:&#10;3 яйца&#10;200 г муки&#10;100 мл молока" rows="6"></textarea>
+
+        <textarea id="manual-steps" placeholder="Шаги приготовления (каждый с новой строки)&#10;Например:&#10;Взбейте 3 яйца с сахаром&#10;Добавьте 200 г муки&#10;Выпекайте 30 минут при 180°C" rows="8"></textarea>
+
+        <textarea id="manual-notes" placeholder="Заметки и советы (необязательно)" rows="3"></textarea>
+
+        <div class="row" style="justify-content:flex-end">
+          <button type="button" id="btn-clear-manual" class="btn btn-ghost">Очистить</button>
+          <button type="submit" class="btn btn-brand">➕ Добавить рецепт</button>
+        </div>
+      </form>
     </section>
 
     <section class="panel">
