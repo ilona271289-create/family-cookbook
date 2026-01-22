@@ -11,7 +11,16 @@ export async function callOpenAIChat(messages) {
   });
 
   if (response.error) {
-    throw new Error(response.error.message);
+    const errorMsg = response.error.message || JSON.stringify(response.error);
+    throw new Error(errorMsg);
+  }
+
+  if (!response.data) {
+    throw new Error('No data received from Edge Function');
+  }
+
+  if (response.data.error) {
+    throw new Error(response.data.error);
   }
 
   return response.data;
