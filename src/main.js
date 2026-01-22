@@ -55,6 +55,8 @@ async function init() {
 }
 
 function setupAuth() {
+  let isSignInMode = true;
+
   supabase.auth.onAuthStateChange((event, session) => {
     if (session?.user) {
       currentUser = session.user;
@@ -72,19 +74,86 @@ function setupAuth() {
     }
   });
 
-  document.getElementById('btn-signin').onclick = async () => {
+  const tabSignin = document.getElementById('tab-signin');
+  const tabSignup = document.getElementById('tab-signup');
+  const authForm = document.getElementById('auth-form');
+  const btnSubmit = document.getElementById('btn-auth-submit');
+  const authError = document.getElementById('auth-error');
+  const authEmail = document.getElementById('auth-email');
+  const authPassword = document.getElementById('auth-password');
+
+  tabSignin.onclick = () => {
+    isSignInMode = true;
+    tabSignin.classList.add('active');
+    tabSignup.classList.remove('active');
+    btnSubmit.textContent = 'Войти';
+    authPassword.setAttribute('autocomplete', 'current-password');
+    hideError();
+  };
+
+  tabSignup.onclick = () => {
+    isSignInMode = false;
+    tabSignup.classList.add('active');
+    tabSignin.classList.remove('active');
+    btnSubmit.textContent = 'Зарегистрироваться';
+    authPassword.setAttribute('autocomplete', 'new-password');
+    hideError();
+  };
+
+  authForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+
+    if (!email || !password) {
+      showError('Заполните все поля');
+      return;
+    }
+
+    if (password.length < 6) {
+      showError('Пароль должен быть не менее 6 символов');
+      return;
+    }
+
+    hideError();
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = isSignInMode ? 'Вход...' : 'Регистрация...';
+
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin
-        }
-      });
-      if (error) throw error;
+      if (isSignInMode) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password
+        });
+        if (error) throw error;
+        showError('Аккаунт создан! Теперь войдите.', false);
+        setTimeout(() => {
+          tabSignin.click();
+        }, 1500);
+      }
     } catch (err) {
-      alert('Ошибка входа: ' + err.message);
+      showError(err.message);
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = isSignInMode ? 'Войти' : 'Зарегистрироваться';
     }
   };
+
+  function showError(message, isError = true) {
+    authError.textContent = message;
+    authError.style.display = 'block';
+    authError.style.color = isError ? '#dc2626' : '#059669';
+  }
+
+  function hideError() {
+    authError.style.display = 'none';
+  }
 
   document.getElementById('btn-signout').onclick = async () => {
     await supabase.auth.signOut();
@@ -99,6 +168,9 @@ function showMainContent() {
   const avatar = document.getElementById('user-avatar');
   if (currentUser?.user_metadata?.avatar_url) {
     avatar.src = currentUser.user_metadata.avatar_url;
+    avatar.style.display = 'block';
+  } else {
+    avatar.style.display = 'none';
   }
 }
 
