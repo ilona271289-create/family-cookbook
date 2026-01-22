@@ -15,10 +15,12 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const openaiKey = Deno.env.get("OPENAI_API_KEY");
+    const { messages, apiKey } = await req.json();
+
+    const openaiKey = apiKey || Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
       return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY not configured in Supabase secrets" }),
+        JSON.stringify({ error: "OPENAI_API_KEY not provided" }),
         {
           status: 500,
           headers: {
@@ -28,8 +30,6 @@ Deno.serve(async (req: Request) => {
         }
       );
     }
-
-    const { messages } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(
