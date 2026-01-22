@@ -17,19 +17,38 @@ Deno.serve(async (req: Request) => {
   try {
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
-      throw new Error("OPENAI_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "OPENAI_API_KEY not configured in Supabase secrets" }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     const formData = await req.formData();
     const audioFile = formData.get("file");
 
     if (!audioFile) {
-      throw new Error("No audio file provided");
+      return new Response(
+        JSON.stringify({ error: "No audio file provided" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     const whisperFormData = new FormData();
     whisperFormData.append("file", audioFile);
     whisperFormData.append("model", "whisper-1");
+    whisperFormData.append("language", "ru");
 
     const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
       method: "POST",
@@ -40,8 +59,18 @@ Deno.serve(async (req: Request) => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`Whisper API error: ${error.error?.message || "Unknown error"}`);
+      const errorText = await response.text();
+      console.error("Whisper API error:", errorText);
+      return new Response(
+        JSON.stringify({ error: `Whisper API error: ${errorText}` }),
+        {
+          status: response.status,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     const data = await response.json();

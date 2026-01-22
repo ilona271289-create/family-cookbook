@@ -26,13 +26,21 @@ export async function transcribeAudio(audioFile) {
   const formData = new FormData();
   formData.append('file', audioFile);
 
-  const response = await supabase.functions.invoke('openai-whisper', {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const apiUrl = `${supabaseUrl}/functions/v1/openai-whisper`;
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${session.access_token}`,
+    },
     body: formData
   });
 
-  if (response.error) {
-    throw new Error(response.error.message);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Transcription failed');
   }
 
-  return response.data;
+  return await response.json();
 }
