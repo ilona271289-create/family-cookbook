@@ -17,13 +17,31 @@ Deno.serve(async (req: Request) => {
   try {
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
-      throw new Error("OPENAI_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "OPENAI_API_KEY not configured in Supabase secrets" }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     const { messages } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
-      throw new Error("Invalid request: messages array required");
+      return new Response(
+        JSON.stringify({ error: "Invalid request: messages array required" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -40,8 +58,18 @@ Deno.serve(async (req: Request) => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`OpenAI API error: ${error.error?.message || "Unknown error"}`);
+      const errorText = await response.text();
+      console.error("OpenAI API error:", errorText);
+      return new Response(
+        JSON.stringify({ error: `OpenAI API error: ${errorText}` }),
+        {
+          status: response.status,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     const data = await response.json();
