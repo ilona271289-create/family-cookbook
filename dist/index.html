@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Кулинарная книга El Pablo</title>
+  <style>
+    :root{
+      --bg:#f0fdfa;
+      --surface:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --brand:#14b8a6;
+      --brand-light:#2dd4bf;
+      --brand-dark:#0d9488;
+      --accent:#f59e0b;
+      --border:#e2e8f0;
+      --shadow:0 2px 8px rgba(20,184,166,.08);
+      --shadow-lg:0 8px 24px rgba(20,184,166,.15);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      background:var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+      color:var(--ink);
+      line-height:1.6;
+    }
+
+    header{
+      background:linear-gradient(135deg,var(--brand),var(--brand-light));
+      color:#fff;
+      padding:1.25rem 1rem;
+      position:sticky;
+      top:0;
+      z-index:100;
+      box-shadow:var(--shadow-lg);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    h1{
+      font-size:1.5rem;
+      font-weight:700;
+      letter-spacing:-0.02em;
+    }
+    .user-info{
+      display:flex;
+      align-items:center;
+      gap:0.75rem;
+      font-size:0.9rem;
+    }
+    .user-avatar{
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.3);
+    }
+    .btn-signout{
+      background:rgba(255,255,255,.2);
+      border:none;
+      color:#fff;
+      padding:0.5rem 1rem;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:0.875rem;
+      transition:background 0.2s;
+    }
+    .btn-signout:hover{
+      background:rgba(255,255,255,.3);
+    }
+
+    main{
+      max-width:1200px;
+      margin:0 auto;
+      padding:1.5rem 1rem;
+    }
+
+    .auth-screen{
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,var(--brand),var(--brand-light));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+    }
+    .auth-box{
+      background:#fff;
+      padding:3rem;
+      border-radius:16px;
+      box-shadow:var(--shadow-lg);
+      text-align:center;
+      max-width:400px;
+      width:90%;
+    }
+    .auth-box h2{
+      color:var(--brand);
+      margin-bottom:1rem;
+      font-size:1.75rem;
+    }
+    .auth-box p{
+      color:var(--muted);
+      margin-bottom:2rem;
+    }
+    .btn-google{
+      background:#fff;
+      border:2px solid var(--border);
+      padding:0.875rem 2rem;
+      border-radius:8px;
+      font-size:1rem;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:0.75rem;
+      transition:all 0.2s;
+      font-weight:500;
+    }
+    .btn-google:hover{
+      border-color:var(--brand);
+      box-shadow:var(--shadow);
+    }
+
+    .panel{
+      background:var(--surface);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      padding:1.5rem;
+      margin-bottom:1.5rem;
+    }
+    h2{
+      font-size:1.25rem;
+      font-weight:600;
+      margin-bottom:1rem;
+      color:var(--brand);
+    }
+
+    textarea,input[type="text"],input[type="password"],select{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:0.75rem;
+      font:inherit;
+      outline:none;
+      transition:border-color 0.2s;
+      background:var(--surface);
+    }
+    textarea:focus,input:focus,select:focus{
+      border-color:var(--brand);
+    }
+    textarea{
+      min-height:80px;
+      resize:vertical;
+    }
+
+    .btn{
+      border:none;
+      border-radius:8px;
+      padding:0.75rem 1.25rem;
+      font:inherit;
+      font-weight:500;
+      cursor:pointer;
+      transition:all 0.2s;
+      display:inline-flex;
+      align-items:center;
+      gap:0.5rem;
+    }
+    .btn-brand{
+      background:var(--brand);
+      color:#fff;
+    }
+    .btn-brand:hover{
+      background:var(--brand-dark);
+      transform:translateY(-1px);
+    }
+    .btn-ghost{
+      background:var(--bg);
+      color:var(--ink);
+    }
+    .btn-ghost:hover{
+      background:#e0f2fe;
+    }
+    .btn-sm{
+      padding:0.5rem 0.875rem;
+      font-size:0.875rem;
+    }
+
+    .grid{display:grid;gap:1rem}
+    .row{
+      display:flex;
+      gap:0.75rem;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    #chat-box{
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:1rem;
+      min-height:200px;
+      max-height:400px;
+      background:#fefefe;
+      overflow-y:auto;
+      margin-bottom:1rem;
+    }
+    .msg{
+      display:flex;
+      margin:0.75rem 0;
+      animation:fadeIn 0.3s;
+    }
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .msg .b{
+      padding:0.75rem 1rem;
+      border-radius:12px;
+      max-width:85%;
+      white-space:pre-wrap;
+      line-height:1.5;
+      word-wrap:break-word;
+    }
+    .me{justify-content:flex-end}
+    .me .b{
+      background:var(--brand);
+      color:#fff;
+    }
+    .ai .b{
+      background:#f1f5f9;
+      color:var(--ink);
+    }
+
+    .chat-input-area{
+      display:grid;
+      gap:0.75rem;
+    }
+    .chat-controls{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:0.75rem;
+      align-items:end;
+    }
+    #chat-input{
+      min-height:60px;
+      resize:none;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:1.25rem;
+    }
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      padding:1.25rem;
+      transition:all 0.2s;
+    }
+    .card:hover{
+      box-shadow:var(--shadow-lg);
+      transform:translateY(-2px);
+    }
+    .title-row{
+      display:flex;
+      gap:0.75rem;
+      align-items:start;
+      margin-bottom:0.75rem;
+    }
+    .card-title{
+      flex:1;
+      font-weight:600;
+      font-size:1.1rem;
+      line-height:1.3;
+    }
+    .star{
+      cursor:pointer;
+      font-size:1.5rem;
+      line-height:1;
+      transition:transform 0.2s;
+      color:#ddd;
+    }
+    .star:hover{transform:scale(1.2)}
+    .star.active{color:#f59e0b}
+    .card-meta{
+      color:var(--muted);
+      font-size:0.875rem;
+      margin-bottom:0.75rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.5rem;
+    }
+    .card-section{
+      margin-top:1rem;
+      padding-top:1rem;
+      border-top:1px solid var(--border);
+    }
+    .card-section-title{
+      font-size:0.75rem;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--muted);
+      margin-bottom:0.5rem;
+      font-weight:600;
+    }
+    .card-content{
+      font-size:0.9rem;
+      line-height:1.6;
+    }
+    .actions{
+      display:flex;
+      gap:0.5rem;
+      margin-top:1rem;
+    }
+    .danger{background:#fee2e2;color:#dc2626}
+    .danger:hover{background:#fecaca}
+    .success{background:#d1fae5;color:#059669}
+    .success:hover{background:#a7f3d0}
+
+    .filters{
+      display:grid;
+      grid-template-columns:2fr 1fr 1fr 1fr;
+      gap:0.75rem;
+    }
+
+    .sync-status{
+      display:inline-flex;
+      align-items:center;
+      gap:0.5rem;
+      font-size:0.875rem;
+      color:rgba(255,255,255,.9);
+    }
+    .sync-indicator{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#10b981;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{
+      0%,100%{opacity:1}
+      50%{opacity:0.5}
+    }
+
+    @media(max-width:768px){
+      h1{font-size:1.25rem}
+      h2{font-size:1.1rem}
+      main{padding:1rem 0.75rem}
+      .panel{padding:1rem;margin-bottom:1rem}
+      .filters{grid-template-columns:1fr}
+      .cards{grid-template-columns:1fr}
+      .chat-controls{grid-template-columns:1fr}
+      .chat-controls .btn{width:100%;justify-content:center}
+      #btn-build{order:3}
+      .row{flex-direction:column;align-items:stretch}
+      .btn{width:100%;justify-content:center}
+      .msg .b{max-width:90%}
+      header{flex-direction:column;gap:0.5rem;align-items:flex-start}
+      .user-info{font-size:0.8rem}
+      .user-avatar{width:32px;height:32px}
+    }
+
+    .empty-state{
+      text-align:center;
+      padding:3rem 1rem;
+      color:var(--muted);
+    }
+
+    .loading{
+      text-align:center;
+      padding:2rem;
+      color:var(--muted);
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-CO6PKSmt.js"></script>
+</head>
+<body>
+  <div id="auth-screen" class="auth-screen" style="display:none">
+    <div class="auth-box">
+      <div style="font-size:4rem;margin-bottom:1rem">🍳</div>
+      <h2>Кулинарная книга El Pablo</h2>
+      <p>Войдите, чтобы получить доступ к семейным рецептам</p>
+      <button id="btn-signin" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Войти через Google
+      </button>
+    </div>
+  </div>
+
+  <header>
+    <h1>🍳 Кулинарная книга El Pablo</h1>
+    <div class="user-info" id="user-info" style="display:none">
+      <div class="sync-status">
+        <div class="sync-indicator"></div>
+        Синхронизировано
+      </div>
+      <img id="user-avatar" class="user-avatar" src="" alt="" />
+      <button id="btn-signout" class="btn-signout">Выйти</button>
+    </div>
+  </header>
+
+  <main id="main-content" style="display:none">
+    <section class="panel">
+      <h2>💬 Создать рецепт с ИИ</h2>
+      <div id="chat-box"></div>
+      <div class="chat-input-area">
+        <div class="chat-controls">
+          <button id="btn-mic" class="btn btn-ghost" title="Надиктовать">🎤</button>
+          <textarea id="chat-input" placeholder="Напишите или надиктуйте сообщение…"></textarea>
+          <button id="btn-send" class="btn btn-brand">Отправить</button>
+        </div>
+        <button id="btn-build" class="btn btn-brand">✨ Сформировать рецепт</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>🔍 Поиск и фильтры</h2>
+      <div class="filters">
+        <input id="search" type="text" placeholder="Поиск по названию или ингредиентам" />
+        <select id="filter-category">
+          <option value="">Все категории</option>
+          <option>завтрак</option>
+          <option>суп</option>
+          <option>второе</option>
+          <option>салат</option>
+          <option>выпечка</option>
+          <option>десерт</option>
+          <option>соусы</option>
+          <option>закуски</option>
+          <option>блюда на гриле</option>
+          <option>блюда в тандыре</option>
+          <option>паста</option>
+          <option>плов</option>
+          <option>овощные блюда</option>
+          <option>рыба и морепродукты</option>
+          <option>детское</option>
+          <option>постное</option>
+          <option>напитки</option>
+        </select>
+        <select id="filter-time">
+          <option value="">Время ≤</option>
+          <option value="15">15 мин</option>
+          <option value="30">30 мин</option>
+          <option value="45">45 мин</option>
+          <option value="60">60 мин</option>
+        </select>
+        <select id="filter-fav">
+          <option value="all">Все</option>
+          <option value="only">Избранные</option>
+          <option value="exclude">Без избранных</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>📚 Наши рецепты</h2>
+      <div id="cards" class="cards">
+        <div class="loading">Загрузка рецептов...</div>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
