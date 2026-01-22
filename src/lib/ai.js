@@ -3,7 +3,7 @@ import { supabase } from './supabase.js';
 export async function callOpenAIChat(messages) {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  const openaiKey = import.meta.env.OPENAI_API_KEY;
+  const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
   const apiUrl = `${supabaseUrl}/functions/v1/openai-chat`;
 
   const response = await fetch(apiUrl, {
