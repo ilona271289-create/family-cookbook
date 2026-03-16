@@ -3,7 +3,6 @@ import { getRecipes, addRecipe, updateRecipe, deleteRecipe, toggleFavorite, subs
 import { callOpenAIChat, transcribeAudio } from './lib/ai.js';
 import { importBulkRecipes } from './lib/importRecipes.js';
 
-let currentUser = null;
 let recipesCache = [];
 let messages = [{
   role: 'system',
@@ -49,12 +48,20 @@ let audioChunks = [];
 let isRecording = false;
 
 async function init() {
-  setupAuth();
   setupChat();
   setupManualForm();
   setupVoice();
   setupFilters();
   setupBulkImport();
+
+  await autoImportRecipes();
+  loadRecipes();
+  subscribeToRecipes(handleRecipeChange);
+
+  if (!sessionStorage.getItem('greeted')) {
+    addMsg('assistant', 'Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.');
+    sessionStorage.setItem('greeted', '1');
+  }
 }
 
 async function autoImportRecipes() {
@@ -76,164 +83,6 @@ function setupBulkImport() {
   window.importBulkRecipes = importBulkRecipes;
 }
 
-function setupAuth() {
-  let isSignInMode = true;
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    (async () => {
-      if (session?.user) {
-        currentUser = session.user;
-        showMainContent();
-
-        await autoImportRecipes();
-
-        loadRecipes();
-        subscribeToRecipes(handleRecipeChange);
-
-        if (!sessionStorage.getItem('greeted')) {
-          addMsg('assistant', 'Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.');
-          sessionStorage.setItem('greeted', '1');
-        }
-      } else {
-        currentUser = null;
-        showAuthScreen();
-      }
-    })();
-  });
-
-  const tabSignin = document.getElementById('tab-signin');
-  const tabSignup = document.getElementById('tab-signup');
-  const authForm = document.getElementById('auth-form');
-  const btnSubmit = document.getElementById('btn-auth-submit');
-  const authError = document.getElementById('auth-error');
-  const authEmail = document.getElementById('auth-email');
-  const authPassword = document.getElementById('auth-password');
-  const btnForgotPassword = document.getElementById('btn-forgot-password');
-
-  tabSignin.onclick = () => {
-    isSignInMode = true;
-    tabSignin.classList.add('active');
-    tabSignup.classList.remove('active');
-    btnSubmit.textContent = 'Войти';
-    authPassword.setAttribute('autocomplete', 'current-password');
-    hideError();
-  };
-
-  tabSignup.onclick = () => {
-    isSignInMode = false;
-    tabSignup.classList.add('active');
-    tabSignin.classList.remove('active');
-    btnSubmit.textContent = 'Зарегистрироваться';
-    authPassword.setAttribute('autocomplete', 'new-password');
-    hideError();
-  };
-
-  authForm.onsubmit = async (e) => {
-    e.preventDefault();
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
-
-    if (!email || !password) {
-      showError('Заполните все поля');
-      return;
-    }
-
-    if (password.length < 6) {
-      showError('Пароль должен быть не менее 6 символов');
-      return;
-    }
-
-    hideError();
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = isSignInMode ? 'Вход...' : 'Регистрация...';
-
-    try {
-      if (isSignInMode) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password
-        });
-        if (error) throw error;
-        showError('Аккаунт создан! Теперь войдите.', false);
-        setTimeout(() => {
-          tabSignin.click();
-        }, 1500);
-      }
-    } catch (err) {
-      showError(err.message);
-    } finally {
-      btnSubmit.disabled = false;
-      btnSubmit.textContent = isSignInMode ? 'Войти' : 'Зарегистрироваться';
-    }
-  };
-
-  function showError(message, isError = true) {
-    authError.textContent = message;
-    authError.style.display = 'block';
-    authError.style.color = isError ? '#dc2626' : '#059669';
-  }
-
-  function hideError() {
-    authError.style.display = 'none';
-  }
-
-  btnForgotPassword.onclick = async () => {
-    const email = authEmail.value.trim();
-
-    if (!email) {
-      showError('Введите email для восстановления пароля');
-      return;
-    }
-
-    btnForgotPassword.disabled = true;
-    btnForgotPassword.textContent = 'Отправка...';
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password'
-      });
-
-      if (error) throw error;
-
-      showError('Письмо для восстановления пароля отправлено на ' + email, false);
-    } catch (err) {
-      showError(err.message);
-    } finally {
-      btnForgotPassword.disabled = false;
-      btnForgotPassword.textContent = 'Забыли пароль?';
-    }
-  };
-
-  document.getElementById('btn-signout').onclick = async () => {
-    await supabase.auth.signOut();
-  };
-}
-
-function showMainContent() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('main-content').style.display = 'block';
-  document.getElementById('user-info').style.display = 'flex';
-
-  const avatar = document.getElementById('user-avatar');
-  if (currentUser?.user_metadata?.avatar_url) {
-    avatar.src = currentUser.user_metadata.avatar_url;
-    avatar.style.display = 'block';
-  } else {
-    avatar.style.display = 'none';
-  }
-}
-
-function showAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('main-content').style.display = 'none';
-  document.getElementById('user-info').style.display = 'none';
-}
 
 async function loadRecipes() {
   try {

@@ -43,135 +43,11 @@
       font-weight:700;
       letter-spacing:-0.02em;
     }
-    .user-info{
-      display:flex;
-      align-items:center;
-      gap:0.75rem;
-      font-size:0.9rem;
-    }
-    .user-avatar{
-      width:36px;
-      height:36px;
-      border-radius:50%;
-      border:2px solid rgba(255,255,255,.3);
-    }
-    .btn-signout{
-      background:rgba(255,255,255,.2);
-      border:none;
-      color:#fff;
-      padding:0.5rem 1rem;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:0.875rem;
-      transition:background 0.2s;
-    }
-    .btn-signout:hover{
-      background:rgba(255,255,255,.3);
-    }
 
     main{
       max-width:1200px;
       margin:0 auto;
       padding:1.5rem 1rem;
-    }
-
-    .auth-screen{
-      position:fixed;
-      inset:0;
-      background:linear-gradient(135deg,var(--brand),var(--brand-light));
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:1000;
-    }
-    .auth-box{
-      background:#fff;
-      padding:3rem;
-      border-radius:16px;
-      box-shadow:var(--shadow-lg);
-      text-align:center;
-      max-width:400px;
-      width:90%;
-    }
-    .auth-box h2{
-      color:var(--brand);
-      margin-bottom:1rem;
-      font-size:1.75rem;
-    }
-    .auth-box p{
-      color:var(--muted);
-      margin-bottom:2rem;
-    }
-    .auth-form{
-      display:grid;
-      gap:1rem;
-      margin-top:1rem;
-    }
-    .auth-form input{
-      width:100%;
-      padding:0.875rem;
-      border:1px solid var(--border);
-      border-radius:8px;
-      font-size:1rem;
-      outline:none;
-      transition:border-color 0.2s;
-    }
-    .auth-form input:focus{
-      border-color:var(--brand);
-    }
-    .auth-tabs{
-      display:flex;
-      gap:0.5rem;
-      margin-bottom:1rem;
-    }
-    .auth-tab{
-      flex:1;
-      padding:0.75rem;
-      background:transparent;
-      border:none;
-      color:var(--muted);
-      cursor:pointer;
-      font-size:1rem;
-      font-weight:500;
-      border-bottom:2px solid transparent;
-      transition:all 0.2s;
-    }
-    .auth-tab.active{
-      color:var(--brand);
-      border-bottom-color:var(--brand);
-    }
-    .btn-auth{
-      background:var(--brand);
-      color:#fff;
-      border:none;
-      padding:0.875rem 2rem;
-      border-radius:8px;
-      font-size:1rem;
-      cursor:pointer;
-      font-weight:500;
-      transition:all 0.2s;
-      width:100%;
-    }
-    .btn-auth:hover{
-      background:var(--brand-dark);
-    }
-    .btn-forgot-password{
-      background:transparent;
-      color:var(--brand);
-      border:none;
-      padding:0.5rem;
-      font-size:0.875rem;
-      cursor:pointer;
-      text-decoration:underline;
-      transition:opacity 0.2s;
-    }
-    .btn-forgot-password:hover{
-      opacity:0.8;
-    }
-    .error-msg{
-      color:#dc2626;
-      font-size:0.875rem;
-      margin-top:0.5rem;
     }
 
     .panel{
@@ -410,8 +286,6 @@
       .btn{width:100%;justify-content:center}
       .msg .b{max-width:90%}
       header{flex-direction:column;gap:0.5rem;align-items:flex-start}
-      .user-info{font-size:0.8rem}
-      .user-avatar{width:32px;height:32px}
     }
 
     .empty-state{
@@ -441,40 +315,15 @@
   </style>
 </head>
 <body>
-  <div id="auth-screen" class="auth-screen" style="display:none">
-    <div class="auth-box">
-      <div style="font-size:4rem;margin-bottom:1rem">🍳</div>
-      <h2>Кулинарная книга El Pablo</h2>
-      <p>Войдите, чтобы получить доступ к семейным рецептам</p>
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-signin">Вход</button>
-        <button class="auth-tab" id="tab-signup">Регистрация</button>
-      </div>
-
-      <form id="auth-form" class="auth-form">
-        <input type="email" id="auth-email" placeholder="Email" required autocomplete="email" />
-        <input type="password" id="auth-password" placeholder="Пароль" required autocomplete="current-password" />
-        <button type="submit" class="btn-auth" id="btn-auth-submit">Войти</button>
-        <button type="button" class="btn-forgot-password" id="btn-forgot-password">Забыли пароль?</button>
-        <div id="auth-error" class="error-msg" style="display:none"></div>
-      </form>
-    </div>
-  </div>
-
   <header>
     <h1>🍳 Кулинарная книга El Pablo</h1>
-    <div class="user-info" id="user-info" style="display:none">
-      <div class="sync-status">
-        <div class="sync-indicator"></div>
-        Синхронизировано
-      </div>
-      <img id="user-avatar" class="user-avatar" src="" alt="" />
-      <button id="btn-signout" class="btn-signout">Выйти</button>
+    <div class="sync-status">
+      <div class="sync-indicator"></div>
+      Синхронизировано
     </div>
   </header>
 
-  <main id="main-content" style="display:none">
+  <main id="main-content">
     <section class="panel">
       <h2>💬 Создать рецепт с ИИ</h2>
       <div id="chat-box"></div>
