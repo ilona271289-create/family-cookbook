@@ -363,7 +363,8 @@ function render() {
   const counterEl = document.getElementById('recipe-count');
   const q = (document.getElementById('search').value || '').toLowerCase();
   const cat = document.getElementById('filter-category').value;
-  const tmax = Number(document.getElementById('filter-time').value || 0);
+  const tmaxStr = document.getElementById('filter-time').value;
+  const tmax = tmaxStr ? Number(tmaxStr) : 0;
   const fav = document.getElementById('filter-fav').value;
 
   const filtered = recipesCache.filter(r => {
@@ -372,9 +373,9 @@ function render() {
       (r.ingredients || '').toLowerCase().includes(q) ||
       (r.category || '').toLowerCase().includes(q) ||
       (r.notes || '').toLowerCase().includes(q);
-    const inCat = !cat || (r.category || '') === cat;
+    const inCat = !cat || (r.category || '').toLowerCase() === cat.toLowerCase();
     const timeVal = parseTimeInMinutes(r.time);
-    const inTime = !tmax || timeVal <= tmax;
+    const inTime = tmax === 0 || timeVal <= tmax;
     const isFav = r.is_favorite;
     const inFav = fav === 'all' || (fav === 'only' && isFav) || (fav === 'exclude' && !isFav);
     return inQ && inCat && inTime && inFav;
