@@ -55,6 +55,22 @@ async function init() {
   setupVoice();
   setupFilters();
   setupBulkImport();
+  await autoImportRecipes();
+}
+
+async function autoImportRecipes() {
+  const alreadyImported = localStorage.getItem('recipesImported');
+
+  if (!alreadyImported) {
+    console.log('Автоматически импортируем рецепты...');
+    try {
+      await importBulkRecipes();
+      localStorage.setItem('recipesImported', 'true');
+      console.log('Импорт завершён!');
+    } catch (error) {
+      console.error('Ошибка автоматического импорта:', error);
+    }
+  }
 }
 
 function setupBulkImport() {
