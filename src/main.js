@@ -4,6 +4,7 @@ import { callOpenAIChat, transcribeAudio } from './lib/ai.js';
 import { importBulkRecipes } from './lib/importRecipes.js';
 
 let recipesCache = [];
+let currentSort = 'date-desc';
 let messages = [{
   role: 'system',
   content: [
@@ -46,23 +47,6 @@ let messages = [{
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
-
-async function init() {
-  setupChat();
-  setupManualForm();
-  setupVoice();
-  setupFilters();
-  setupBulkImport();
-
-  await autoImportRecipes();
-  loadRecipes();
-  subscribeToRecipes(handleRecipeChange);
-
-  if (!sessionStorage.getItem('greeted')) {
-    addMsg('assistant', 'Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.');
-    sessionStorage.setItem('greeted', '1');
-  }
-}
 
 async function autoImportRecipes() {
   const alreadyImported = localStorage.getItem('recipesImported');
@@ -329,10 +313,54 @@ function setupFilters() {
   document.getElementById('filter-category').onchange = render;
   document.getElementById('filter-time').onchange = render;
   document.getElementById('filter-fav').onchange = render;
+  document.getElementById('sort-select').onchange = (e) => {
+    currentSort = e.target.value;
+    render();
+  };
+  document.getElementById('btn-reset-filters').onclick = () => {
+    document.getElementById('search').value = '';
+    document.getElementById('filter-category').value = '';
+    document.getElementById('filter-time').value = '';
+    document.getElementById('filter-fav').value = 'all';
+    document.getElementById('sort-select').value = 'date-desc';
+    currentSort = 'date-desc';
+    render();
+  };
+}
+
+function parseTimeInMinutes(timeStr) {
+  if (!timeStr) return 999;
+  const hoursMatch = timeStr.match(/(\d+)\s*ч/);
+  const minsMatch = timeStr.match(/(\d+)\s*мин/);
+  let total = 0;
+  if (hoursMatch) total += parseInt(hoursMatch[1]) * 60;
+  if (minsMatch) total += parseInt(minsMatch[1]);
+  return total || 999;
+}
+
+function sortRecipes(recipes, sortType) {
+  const sorted = [...recipes];
+  switch(sortType) {
+    case 'date-desc':
+      return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    case 'date-asc':
+      return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    case 'title-asc':
+      return sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    case 'title-desc':
+      return sorted.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+    case 'time-asc':
+      return sorted.sort((a, b) => parseTimeInMinutes(a.time) - parseTimeInMinutes(b.time));
+    case 'time-desc':
+      return sorted.sort((a, b) => parseTimeInMinutes(b.time) - parseTimeInMinutes(a.time));
+    default:
+      return sorted;
+  }
 }
 
 function render() {
   const root = document.getElementById('cards');
+  const counterEl = document.getElementById('recipe-count');
   const q = (document.getElementById('search').value || '').toLowerCase();
   const cat = document.getElementById('filter-category').value;
   const tmax = Number(document.getElementById('filter-time').value || 0);
@@ -341,23 +369,32 @@ function render() {
   const filtered = recipesCache.filter(r => {
     const inQ = !q ||
       (r.title || '').toLowerCase().includes(q) ||
-      (r.ingredients || '').toLowerCase().includes(q);
+      (r.ingredients || '').toLowerCase().includes(q) ||
+      (r.category || '').toLowerCase().includes(q) ||
+      (r.notes || '').toLowerCase().includes(q);
     const inCat = !cat || (r.category || '') === cat;
-    const timeVal = parseInt((r.time || '0').replace(/\D/g, '')) || 999;
+    const timeVal = parseTimeInMinutes(r.time);
     const inTime = !tmax || timeVal <= tmax;
     const isFav = r.is_favorite;
     const inFav = fav === 'all' || (fav === 'only' && isFav) || (fav === 'exclude' && !isFav);
     return inQ && inCat && inTime && inFav;
   });
 
+  const sorted = sortRecipes(filtered, currentSort);
+
+  counterEl.textContent = `Найдено: ${sorted.length} из ${recipesCache.length}`;
+
   root.innerHTML = '';
 
-  if (filtered.length === 0) {
-    root.innerHTML = '<div class="empty-state"><div style="font-size:3rem;margin-bottom:1rem">🍽️</div><p>Пока нет рецептов по выбранным фильтрам</p></div>';
+  if (sorted.length === 0) {
+    root.innerHTML = '<div class="empty-state"><div style="font-size:3rem;margin-bottom:1rem">🍽️</div><p>Пока нет рецептов по выбранным фильтрам</p><button class="btn btn-brand" id="temp-reset">Сбросить фильтры</button></div>';
+    document.getElementById('temp-reset')?.addEventListener('click', () => {
+      document.getElementById('btn-reset-filters').click();
+    });
     return;
   }
 
-  filtered.forEach(r => {
+  sorted.forEach(r => {
     const card = document.createElement('div');
     card.className = 'card';
 
@@ -377,6 +414,10 @@ function render() {
     meta.className = 'card-meta';
     meta.innerHTML = `<span>⏱ ${r.time || '—'}</span><span>🍽 ${r.servings || '—'}</span><span>${r.category || '—'}</span>`;
 
+    const collapsible = document.createElement('div');
+    collapsible.className = 'card-collapsible';
+    collapsible.style.display = 'none';
+
     const ing = document.createElement('div');
     ing.className = 'card-section';
     ing.innerHTML = '<div class="card-section-title">Ингредиенты</div><div class="card-content">' + (r.ingredients || '').replace(/\n/g, '<br>') + '</div>';
@@ -385,12 +426,30 @@ function render() {
     st.className = 'card-section';
     st.innerHTML = '<div class="card-section-title">Приготовление</div><div class="card-content">' + (r.steps || '').replace(/\n/g, '<br>') + '</div>';
 
+    if (r.notes && r.notes.trim()) {
+      const notes = document.createElement('div');
+      notes.className = 'card-section';
+      notes.innerHTML = '<div class="card-section-title">Заметки</div><div class="card-content">' + r.notes.replace(/\n/g, '<br>') + '</div>';
+      collapsible.append(notes);
+    }
+
+    collapsible.append(ing, st);
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'btn-expand';
+    toggleBtn.innerHTML = '▼ Подробнее';
+    toggleBtn.onclick = () => {
+      const isOpen = collapsible.style.display === 'block';
+      collapsible.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.innerHTML = isOpen ? '▼ Подробнее' : '▲ Свернуть';
+    };
+
     const actions = document.createElement('div');
     actions.className = 'actions';
     const bEdit = document.createElement('button');
     bEdit.className = 'btn btn-sm success';
     bEdit.textContent = '✎ Редактировать';
-    bEdit.onclick = () => editRecipe(r);
+    bEdit.onclick = () => openEditModal(r);
     const bDel = document.createElement('button');
     bDel.className = 'btn btn-sm danger';
     bDel.textContent = '🗑 Удалить';
@@ -401,26 +460,99 @@ function render() {
     };
     actions.append(bEdit, bDel);
 
-    card.append(row, meta, ing, st, actions);
+    card.append(row, meta, toggleBtn, collapsible, actions);
     root.append(card);
   });
 }
 
-function editRecipe(r) {
-  const t = prompt('Название', r.title || '') || r.title;
-  const cat = prompt('Категория', r.category || '') || r.category;
-  const sv = prompt('Порции', r.servings || '') || r.servings;
-  const tm = prompt('Общее время (мин)', r.time || '') || r.time;
-  const ing = prompt('Ингредиенты (каждый с новой строки)', r.ingredients || '') || r.ingredients;
-  const st = prompt('Шаги (каждый с новой строки)', r.steps || '') || r.steps;
-  updateRecipe(r.id, {
-    title: t,
-    category: cat,
-    servings: sv,
-    time: tm,
-    ingredients: ing,
-    steps: st
-  });
+function openEditModal(recipe) {
+  const modal = document.getElementById('edit-modal');
+  const form = document.getElementById('edit-form');
+
+  document.getElementById('edit-id').value = recipe.id;
+  document.getElementById('edit-title').value = recipe.title || '';
+  document.getElementById('edit-category').value = recipe.category || '';
+  document.getElementById('edit-servings').value = recipe.servings || '';
+  document.getElementById('edit-time').value = recipe.time || '';
+  document.getElementById('edit-ingredients').value = recipe.ingredients || '';
+  document.getElementById('edit-steps').value = recipe.steps || '';
+  document.getElementById('edit-notes').value = recipe.notes || '';
+
+  modal.style.display = 'flex';
+}
+
+function setupEditModal() {
+  const modal = document.getElementById('edit-modal');
+  const form = document.getElementById('edit-form');
+  const closeBtn = document.getElementById('close-edit-modal');
+  const cancelBtn = document.getElementById('cancel-edit');
+
+  closeBtn.onclick = () => {
+    modal.style.display = 'none';
+  };
+
+  cancelBtn.onclick = () => {
+    modal.style.display = 'none';
+  };
+
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  };
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('edit-id').value;
+    const title = document.getElementById('edit-title').value.trim();
+    const category = document.getElementById('edit-category').value;
+    const servings = document.getElementById('edit-servings').value.trim();
+    const time = document.getElementById('edit-time').value.trim();
+    const ingredients = document.getElementById('edit-ingredients').value.trim();
+    const steps = document.getElementById('edit-steps').value.trim();
+    const notes = document.getElementById('edit-notes').value.trim();
+
+    if (!title) {
+      alert('Укажите название блюда');
+      return;
+    }
+
+    try {
+      await updateRecipe(id, {
+        title,
+        category,
+        servings,
+        time,
+        ingredients,
+        steps,
+        notes
+      });
+      modal.style.display = 'none';
+      alert('✅ Рецепт обновлен!');
+    } catch (error) {
+      console.error('Update recipe error:', error);
+      alert('❌ Ошибка при обновлении рецепта: ' + error.message);
+    }
+  };
+}
+
+async function init() {
+  setupChat();
+  setupManualForm();
+  setupVoice();
+  setupFilters();
+  setupBulkImport();
+  setupEditModal();
+
+  await autoImportRecipes();
+  loadRecipes();
+  subscribeToRecipes(handleRecipeChange);
+
+  if (!sessionStorage.getItem('greeted')) {
+    addMsg('assistant', 'Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.');
+    sessionStorage.setItem('greeted', '1');
+  }
 }
 
 init();

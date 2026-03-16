@@ -300,6 +300,83 @@
       color:var(--muted);
     }
 
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.5);
+      z-index:1000;
+      align-items:center;
+      justify-content:center;
+      padding:1rem;
+    }
+    .modal-content{
+      background:var(--surface);
+      border-radius:12px;
+      max-width:600px;
+      width:100%;
+      max-height:90vh;
+      overflow-y:auto;
+      box-shadow:var(--shadow-lg);
+    }
+    .modal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:1.5rem;
+      border-bottom:1px solid var(--border);
+    }
+    .modal-header h2{
+      margin:0;
+    }
+    .modal-close{
+      background:none;
+      border:none;
+      font-size:2rem;
+      cursor:pointer;
+      color:var(--muted);
+      line-height:1;
+      padding:0;
+      width:2rem;
+      height:2rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .modal-close:hover{
+      color:var(--ink);
+    }
+    .modal-content .form-grid{
+      padding:1.5rem;
+    }
+
+    .btn-expand{
+      background:none;
+      border:none;
+      color:var(--brand);
+      font:inherit;
+      cursor:pointer;
+      padding:0.5rem 0;
+      width:100%;
+      text-align:center;
+      font-weight:500;
+      transition:color 0.2s;
+    }
+    .btn-expand:hover{
+      color:var(--brand-dark);
+    }
+
+    .card-collapsible{
+      animation:slideDown 0.3s;
+    }
+    @keyframes slideDown{
+      from{opacity:0;transform:translateY(-10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
     .form-grid{
       display:grid;
       gap:1rem;
@@ -383,7 +460,7 @@
     <section class="panel">
       <h2>🔍 Поиск и фильтры</h2>
       <div class="filters">
-        <input id="search" type="text" placeholder="Поиск по названию или ингредиентам" />
+        <input id="search" type="text" placeholder="Поиск по названию, ингредиентам, категории..." />
         <select id="filter-category">
           <option value="">Все категории</option>
           <option>завтрак</option>
@@ -410,12 +487,26 @@
           <option value="30">30 мин</option>
           <option value="45">45 мин</option>
           <option value="60">60 мин</option>
+          <option value="90">1.5 ч</option>
+          <option value="120">2 ч</option>
         </select>
         <select id="filter-fav">
           <option value="all">Все</option>
           <option value="only">Избранные</option>
           <option value="exclude">Без избранных</option>
         </select>
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-top:1rem;align-items:center;flex-wrap:wrap">
+        <select id="sort-select" class="btn btn-ghost" style="width:auto;padding:0.5rem 1rem">
+          <option value="date-desc">Сначала новые</option>
+          <option value="date-asc">Сначала старые</option>
+          <option value="title-asc">По названию А-Я</option>
+          <option value="title-desc">По названию Я-А</option>
+          <option value="time-asc">Быстрые сначала</option>
+          <option value="time-desc">Долгие сначала</option>
+        </select>
+        <button id="btn-reset-filters" class="btn btn-ghost">🔄 Сбросить</button>
+        <div id="recipe-count" style="margin-left:auto;color:var(--muted);font-size:0.9rem"></div>
       </div>
     </section>
 
@@ -426,6 +517,50 @@
       </div>
     </section>
   </main>
+
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Редактировать рецепт</h2>
+        <button id="close-edit-modal" class="modal-close">&times;</button>
+      </div>
+      <form id="edit-form" class="form-grid">
+        <input type="hidden" id="edit-id" />
+        <input type="text" id="edit-title" placeholder="Название блюда *" required />
+        <div class="form-row">
+          <select id="edit-category">
+            <option value="">Категория</option>
+            <option>завтрак</option>
+            <option>суп</option>
+            <option>второе</option>
+            <option>салат</option>
+            <option>выпечка</option>
+            <option>десерт</option>
+            <option>соусы</option>
+            <option>закуски</option>
+            <option>блюда на гриле</option>
+            <option>блюда в тандыре</option>
+            <option>паста</option>
+            <option>плов</option>
+            <option>овощные блюда</option>
+            <option>рыба и морепродукты</option>
+            <option>детское</option>
+            <option>постное</option>
+            <option>напитки</option>
+          </select>
+          <input type="text" id="edit-servings" placeholder="Порций" />
+          <input type="text" id="edit-time" placeholder="Время" />
+        </div>
+        <textarea id="edit-ingredients" placeholder="Ингредиенты (каждый с новой строки)" rows="6"></textarea>
+        <textarea id="edit-steps" placeholder="Шаги приготовления (каждый с новой строки)" rows="8"></textarea>
+        <textarea id="edit-notes" placeholder="Заметки и советы" rows="3"></textarea>
+        <div class="row" style="justify-content:flex-end">
+          <button type="button" id="cancel-edit" class="btn btn-ghost">Отмена</button>
+          <button type="submit" class="btn btn-brand">💾 Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
