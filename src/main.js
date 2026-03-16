@@ -108,6 +108,7 @@ function setupAuth() {
   const authError = document.getElementById('auth-error');
   const authEmail = document.getElementById('auth-email');
   const authPassword = document.getElementById('auth-password');
+  const btnForgotPassword = document.getElementById('btn-forgot-password');
 
   tabSignin.onclick = () => {
     isSignInMode = true;
@@ -181,6 +182,33 @@ function setupAuth() {
   function hideError() {
     authError.style.display = 'none';
   }
+
+  btnForgotPassword.onclick = async () => {
+    const email = authEmail.value.trim();
+
+    if (!email) {
+      showError('Введите email для восстановления пароля');
+      return;
+    }
+
+    btnForgotPassword.disabled = true;
+    btnForgotPassword.textContent = 'Отправка...';
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password'
+      });
+
+      if (error) throw error;
+
+      showError('Письмо для восстановления пароля отправлено на ' + email, false);
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      btnForgotPassword.disabled = false;
+      btnForgotPassword.textContent = 'Забыли пароль?';
+    }
+  };
 
   document.getElementById('btn-signout').onclick = async () => {
     await supabase.auth.signOut();
