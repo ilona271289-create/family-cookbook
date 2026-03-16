@@ -55,7 +55,6 @@ async function init() {
   setupVoice();
   setupFilters();
   setupBulkImport();
-  await autoImportRecipes();
 }
 
 async function autoImportRecipes() {
@@ -81,20 +80,25 @@ function setupAuth() {
   let isSignInMode = true;
 
   supabase.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      currentUser = session.user;
-      showMainContent();
-      loadRecipes();
-      subscribeToRecipes(handleRecipeChange);
+    (async () => {
+      if (session?.user) {
+        currentUser = session.user;
+        showMainContent();
 
-      if (!sessionStorage.getItem('greeted')) {
-        addMsg('assistant', 'Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.');
-        sessionStorage.setItem('greeted', '1');
+        await autoImportRecipes();
+
+        loadRecipes();
+        subscribeToRecipes(handleRecipeChange);
+
+        if (!sessionStorage.getItem('greeted')) {
+          addMsg('assistant', 'Привет! Я ваш шеф-повар 🤖 Надиктуйте или напишите, а я помогу собрать рецепт и подскажу фишки.');
+          sessionStorage.setItem('greeted', '1');
+        }
+      } else {
+        currentUser = null;
+        showAuthScreen();
       }
-    } else {
-      currentUser = null;
-      showAuthScreen();
-    }
+    })();
   });
 
   const tabSignin = document.getElementById('tab-signin');
